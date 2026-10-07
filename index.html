@@ -838,9 +838,30 @@ let beatEnergy = 0; // 0-1, updated by audio engine
 
   function switchSide(who){
     if(!audioCtx || currentSide === who) return;
-    savePos(currentSide);          // שמור מיקום של הצד הנוכחי
-    setSide(who);
-    startPlaylist(who==='groom' ? GROOM_IDS : BRIDE_IDS, who); // טען מיקום שמור של הצד החדש
+    savePos(currentSide);
+
+    // animate names out, then switch, then animate back in
+    const allSpans = document.querySelectorAll('#main-groom span[data-li], #main-bride span[data-li]');
+    allSpans.forEach(sp => {
+      sp.style.transition = 'transform 0.35s cubic-bezier(.4,0,1,1), opacity 0.3s ease';
+      const tx = (Math.random()-0.5)*window.innerWidth*0.7;
+      const ty = (Math.random()-0.5)*80;
+      const rot = (Math.random()-0.5)*25;
+      sp.style.transform = `translateX(${tx}px) translateY(${ty}px) rotate(${rot}deg) scale(0.4)`;
+      sp.style.opacity = '0';
+    });
+
+    setTimeout(() => {
+      setSide(who);
+      // re-run the fly-in animation
+      // restore original text first
+      const groomEl = document.getElementById('main-groom');
+      const brideEl = document.getElementById('main-bride');
+      const ORIG = { 'main-groom': 'שימי', 'main-bride': 'תמר' };
+      [groomEl, brideEl].forEach(el => { if(el) el.textContent = ORIG[el.id] || el.textContent.replace(/\s/g,''); });
+      animateMainNames();
+      startPlaylist(who==='groom' ? GROOM_IDS : BRIDE_IDS, who);
+    }, 380);
   }
 
   function dismiss(who){
