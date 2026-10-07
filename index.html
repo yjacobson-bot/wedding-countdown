@@ -161,6 +161,19 @@
     }
     @media (prefers-reduced-motion:reduce) { .names::after { animation: none; } }
 
+    .name-btn {
+      cursor: pointer;
+      transition: color 0.25s, text-shadow 0.25s;
+    }
+    .name-btn:hover {
+      color: var(--golds);
+      text-shadow: 0 0 40px rgba(201,168,76,0.5);
+    }
+    .name-btn.active {
+      color: var(--gold);
+      text-shadow: 0 0 50px rgba(201,168,76,0.6);
+    }
+
     .footer {
       font-size: clamp(0.5rem, 0.9vw, 0.65rem);
       letter-spacing: 0.22em; text-transform: uppercase; color: var(--goldd);
@@ -237,7 +250,7 @@
 
   <div class="top">
     <p class="eyebrow">יום החתונה מתקרב</p>
-    <h1 class="names">שימי<span class="amp">&amp;</span>תמר</h1>
+    <h1 class="names"><span id="main-groom" class="name-btn">שימי</span><span class="amp">&amp;</span><span id="main-bride" class="name-btn">תמר</span></h1>
   </div>
 
   <div class="dates">
@@ -422,10 +435,14 @@
   const audioBride  = document.getElementById('audio-bride');
   const btnGroom    = document.getElementById('btn-groom');
   const btnBride    = document.getElementById('btn-bride');
+  const mainGroom   = document.getElementById('main-groom');
+  const mainBride   = document.getElementById('main-bride');
   audioGroom.volume = 0.5;
   audioBride.volume = 0.5;
 
-  /* hover glow */
+  let activeAudio = null;
+
+  /* hover glow on splash buttons */
   [btnGroom, btnBride].forEach(btn => {
     btn.addEventListener('mouseenter', () => {
       btn.style.color = '#e2c97e';
@@ -437,16 +454,33 @@
     });
   });
 
-  function dismiss(audio) {
-    audio.play().catch(()=>{});
+  function setActive(who) {
+    /* who = 'groom' | 'bride' */
+    mainGroom.classList.toggle('active', who === 'groom');
+    mainBride.classList.toggle('active', who === 'bride');
+    const next = who === 'groom' ? audioGroom : audioBride;
+    if(activeAudio && activeAudio !== next){
+      activeAudio.pause(); activeAudio.currentTime = 0;
+    }
+    activeAudio = next;
+    next.play().catch(()=>{});
+  }
+
+  function dismiss(who) {
+    setActive(who);
     splash.style.opacity = '0';
     setTimeout(() => splash.style.display = 'none', 900);
   }
 
-  btnGroom.addEventListener('click',     () => dismiss(audioGroom), {once:true});
-  btnGroom.addEventListener('touchstart',() => dismiss(audioGroom), {once:true, passive:true});
-  btnBride.addEventListener('click',     () => dismiss(audioBride),  {once:true});
-  btnBride.addEventListener('touchstart',() => dismiss(audioBride),  {once:true, passive:true});
+  /* splash taps */
+  btnGroom.addEventListener('click',     () => dismiss('groom'), {once:true});
+  btnGroom.addEventListener('touchstart',() => dismiss('groom'), {once:true, passive:true});
+  btnBride.addEventListener('click',     () => dismiss('bride'),  {once:true});
+  btnBride.addEventListener('touchstart',() => dismiss('bride'),  {once:true, passive:true});
+
+  /* main page name taps — switch song anytime */
+  mainGroom.addEventListener('click', () => setActive('groom'));
+  mainBride.addEventListener('click', () => setActive('bride'));
 })();
 </script>
 </body>
