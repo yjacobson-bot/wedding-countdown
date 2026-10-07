@@ -750,6 +750,8 @@ let beatEnergy = 0; // 0-1, updated by audio engine
   }
   function loadPos(who){ try { return JSON.parse(localStorage.getItem('wc_'+who)||'null'); } catch(e){ return null; } }
 
+  let saveInterval = null;
+
   function startPlaylist(ids, who){
     activeIds = ids;
     const saved = who ? loadPos(who) : null;
@@ -758,8 +760,9 @@ let beatEnergy = 0; // 0-1, updated by audio engine
     } else {
       crossfadeTo(pickRandom(ids, null));
     }
-    // save position every 5s
-    if(who) setInterval(()=>savePos(who), 5000);
+    // save position every 5s — clear previous interval first
+    if(saveInterval) clearInterval(saveInterval);
+    if(who) saveInterval = setInterval(()=>savePos(who), 5000);
   }
 
   /* ── main-page name entrance animation (fires once after splash) ── */
@@ -834,11 +837,9 @@ let beatEnergy = 0; // 0-1, updated by audio engine
 
   function switchSide(who){
     if(!audioCtx || currentSide === who) return;
+    savePos(currentSide);          // שמור מיקום של הצד הנוכחי
     setSide(who);
-    // crossfade to new playlist immediately
-    const newIds = who==='groom' ? GROOM_IDS : BRIDE_IDS;
-    activeIds = newIds;
-    crossfadeTo(pickRandom(newIds, currentId));
+    startPlaylist(who==='groom' ? GROOM_IDS : BRIDE_IDS, who); // טען מיקום שמור של הצד החדש
   }
 
   function dismiss(who){
