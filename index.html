@@ -580,7 +580,7 @@ let beatEnergy = 0; // 0-1, updated by audio engine
     if(node._ended)  { node.audio.removeEventListener('ended',      node._ended); node._ended=null; }
   }
 
-  function crossfadeTo(nextId){
+  function crossfadeTo(nextId, startAt){
     const now  = audioCtx.currentTime;
     const next = nodes[nextId];
     if(!next) return;
@@ -603,7 +603,7 @@ let beatEnergy = 0; // 0-1, updated by audio engine
     }
 
     /* fade in next */
-    next.audio.currentTime = 0;
+    next.audio.currentTime = startAt || 0;
     next.audio.play().catch(()=>{});
     if(next.gain){
       const g = next.gain.gain;
@@ -634,9 +634,25 @@ let beatEnergy = 0; // 0-1, updated by audio engine
     next.audio.addEventListener('ended',      next._ended, {once:true});
   }
 
-  function startPlaylist(ids){
+  // ── persist playback position ──
+  function savePos(who){
+    if(!currentId) return;
+    const audio = nodes[currentId]?.audio;
+    if(!audio || !audio.currentTime) return;
+    try { localStorage.setItem('wc_'+who, JSON.stringify({id:currentId, t:audio.currentTime})); } catch(e){}
+  }
+  function loadPos(who){ try { return JSON.parse(localStorage.getItem('wc_'+who)||'null'); } catch(e){ return null; } }
+
+  function startPlaylist(ids, who){
     activeIds = ids;
-    crossfadeTo(pickRandom(ids, null));
+    const saved = who ? loadPos(who) : null;
+    if(saved && ids.includes(saved.id) && saved.t > 2){
+      crossfadeTo(saved.id, saved.t);
+    } else {
+      crossfadeTo(pickRandom(ids, null));
+    }
+    // save position every 5s
+    if(who) setInterval(()=>savePos(who), 5000);
   }
 
   /* ── splash UI ── */
@@ -662,7 +678,7 @@ let beatEnergy = 0; // 0-1, updated by audio engine
     splash.style.opacity='0';
     setTimeout(()=>splash.style.display='none', 900);
     // resume AudioContext (may be suspended on iOS/Android even after tap)
-    const startAfterResume = () => startPlaylist(who==='groom' ? GROOM_IDS : BRIDE_IDS);
+    const startAfterResume = () => startPlaylist(who==='groom' ? GROOM_IDS : BRIDE_IDS, who);
     if(audioCtx.state === 'suspended'){
       audioCtx.resume().then(startAfterResume);
     } else {
