@@ -142,6 +142,35 @@
 <canvas id="bg-canvas"></canvas>
 <audio id="audio" src="music.mp3" loop preload="none"></audio>
 
+<!-- splash screen -->
+<div id="splash" style="
+  position:fixed;inset:0;z-index:100;
+  background:#080b16;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:2.5vh;cursor:pointer;
+  transition:opacity 0.9s ease;
+">
+  <p style="font-family:'Heebo',sans-serif;font-size:clamp(0.6rem,1.2vw,0.75rem);
+    letter-spacing:0.28em;text-transform:uppercase;color:#c9a84c;">
+    שימי &amp; תמר
+  </p>
+  <h2 style="font-family:'Cormorant Garamond',serif;font-weight:300;
+    font-size:clamp(2.2rem,6vw,5rem);color:#ede4cc;line-height:1.1;text-align:center;">
+    כמה זמן נשאר<br>לחתונה?
+  </h2>
+  <p style="font-family:'Cormorant Garamond',serif;font-style:italic;
+    font-size:clamp(0.9rem,2vw,1.3rem);color:#e2c97e;margin-top:1vh;">
+    לחצו כדי לגלות...
+  </p>
+  <div style="margin-top:2vh;width:6px;height:6px;background:#c9a84c;
+    transform:rotate(45deg);animation:pulse2 1.4s ease-in-out infinite;"></div>
+</div>
+
+<style>
+@keyframes pulse2{0%,100%{opacity:1;transform:rotate(45deg) scale(1)}
+  50%{opacity:0.4;transform:rotate(45deg) scale(1.6)}}
+</style>
+
 <main class="page">
 
   <div class="top">
@@ -281,14 +310,20 @@
   tick();
 })();
 
-/* ════ MUSIC ════ */
+/* ════ SPLASH + MUSIC ════ */
 (function(){
-  const audio=document.getElementById('audio');
-  audio.volume=0.5;
-  function start(){audio.play().catch(()=>{});}
-  document.addEventListener('click',start,{once:true});
-  document.addEventListener('touchstart',start,{once:true,passive:true});
-  document.addEventListener('keydown',start,{once:true});
+  const splash = document.getElementById('splash');
+  const audio  = document.getElementById('audio');
+  audio.volume = 0.5;
+
+  function dismiss(e) {
+    audio.play().catch(()=>{});
+    splash.style.opacity = '0';
+    setTimeout(() => splash.style.display = 'none', 900);
+  }
+
+  splash.addEventListener('click',     dismiss, {once:true});
+  splash.addEventListener('touchstart',dismiss, {once:true, passive:true});
 })();
 </script>
 </body>
