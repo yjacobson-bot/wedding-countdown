@@ -640,7 +640,7 @@ let beatEnergy = 0; // 0-1, updated by audio engine
     analyser.fftSize = 256;
     analyser.smoothingTimeConstant = 0.55;
     freqData = new Uint8Array(analyser.frequencyBinCount);
-    analyser.connect(audioCtx.destination);
+    // analyser is connected in parallel from each src node — no separate destination connect needed
 
     [...GROOM_IDS,...BRIDE_IDS].forEach(id => {
       const audio = document.getElementById(id);
@@ -649,7 +649,8 @@ let beatEnergy = 0; // 0-1, updated by audio engine
         const gain = audioCtx.createGain();
         gain.gain.value = 0;
         src.connect(gain);
-        gain.connect(analyser);
+        gain.connect(audioCtx.destination);
+        src.connect(analyser);
         nodes[id] = { audio, gain, _check:null, _ended:null };
       } catch(e){ nodes[id] = { audio, gain:null, _check:null, _ended:null }; }
     });
