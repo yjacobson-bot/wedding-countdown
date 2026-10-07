@@ -55,8 +55,39 @@
       0%,100% { opacity: 0.85; transform: scale(1);    filter: brightness(1);   }
       50%      { opacity: 1;    transform: scale(1.025); filter: brightness(1.15); }
     }
-    .names { animation: breathe 4s ease-in-out infinite; }
+    .names {
+      animation: breathe 4s ease-in-out infinite;
+      position: relative; overflow: hidden;
+      font-family: 'Frank Ruhl Libre','Cormorant Garamond',serif;
+      font-size: min(16vw, 22vh);
+      font-weight: 400; line-height: 1; white-space: nowrap;
+    }
     @media (prefers-reduced-motion:reduce) { .names { animation: none; } }
+
+    /* gold shimmer sweep */
+    .names::after {
+      content: '';
+      position: absolute;
+      top: -10%; left: -80%;
+      width: 55%; height: 120%;
+      background: linear-gradient(
+        105deg,
+        transparent 30%,
+        rgba(255,240,160,0.6) 50%,
+        transparent 70%
+      );
+      transform: skewX(-15deg);
+      animation: shimmer 8s ease-in-out infinite;
+      pointer-events: none;
+    }
+    @keyframes shimmer {
+      0%   { left: -80%; opacity: 0; }
+      8%   { opacity: 1; }
+      55%  { left: 120%; opacity: 1; }
+      62%  { left: 120%; opacity: 0; }
+      100% { left: 120%; opacity: 0; }
+    }
+    @media (prefers-reduced-motion:reduce) { .names::after { animation: none; } }
 
     /* amp spark container */
     .amp-wrap { position: relative; display: inline-block; vertical-align: middle; }
