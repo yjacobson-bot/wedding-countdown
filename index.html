@@ -161,22 +161,6 @@
       letter-spacing: 0.22em; text-transform: uppercase; color: var(--gold-d);
     }
 
-    /* ── music button ── */
-    #music-btn {
-      position: fixed; bottom: calc(env(safe-area-inset-bottom,0px) + 18px); left: 50%;
-      transform: translateX(-50%);
-      z-index: 10;
-      background: rgba(201,168,76,0.12);
-      border: 1px solid rgba(201,168,76,0.35);
-      color: var(--gold-s);
-      font-family: 'Heebo', sans-serif;
-      font-size: 0.72rem; letter-spacing: 0.14em;
-      padding: 8px 20px; border-radius: 40px; cursor: pointer;
-      transition: background 0.3s, opacity 0.3s;
-      backdrop-filter: blur(6px);
-    }
-    #music-btn:hover { background: rgba(201,168,76,0.22); }
-    #music-btn.playing { color: var(--gold); }
   </style>
 </head>
 <body>
@@ -256,9 +240,6 @@
   <p class="footer">בשעה טובה ומוצלחת</p>
 </main>
 
-<!-- music toggle -->
-<button id="music-btn" onclick="toggleMusic()">♪ נגן מוזיקה</button>
-
 <script>
 /* ════ BACKGROUND ════ */
 (function(){
@@ -335,24 +316,20 @@
   tick();
 })();
 
-/* ════ MUSIC ════ */
-const audio=document.getElementById('audio');
-const btn=document.getElementById('music-btn');
-let playing=false;
-function toggleMusic(){
-  if(!playing){
-    audio.play().then(()=>{
-      playing=true;
-      btn.textContent='♪ עצור מוזיקה';
-      btn.classList.add('playing');
-    }).catch(()=>{});
-  } else {
-    audio.pause();
-    playing=false;
-    btn.textContent='♪ נגן מוזיקה';
-    btn.classList.remove('playing');
+/* ════ MUSIC — starts silently on first interaction ════ */
+(function(){
+  const audio=document.getElementById('audio');
+  audio.volume=0.5;
+  function start(){
+    audio.play().catch(()=>{});
+    document.removeEventListener('click',start);
+    document.removeEventListener('touchstart',start);
+    document.removeEventListener('keydown',start);
   }
-}
+  document.addEventListener('click',start,{once:true});
+  document.addEventListener('touchstart',start,{once:true,passive:true});
+  document.addEventListener('keydown',start,{once:true});
+})();
 </script>
 </body>
 </html>
