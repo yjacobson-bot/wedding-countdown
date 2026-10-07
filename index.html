@@ -562,18 +562,46 @@ let beatEnergy = 0; // 0-1, updated by audio engine
   const daysEl    = document.getElementById('days');
   const ornLeft   = document.getElementById('orn-left');
   const ornRight  = document.getElementById('orn-right');
+  const namesEl   = document.querySelector('.names');
+  const groomEl   = document.getElementById('main-groom');
+  const brideEl   = document.getElementById('main-bride');
+
   let smoothBeat  = 0;
-  let lastBeat    = 0;
-  const THRESH    = 0.45;
+  let prevSmooth  = 0;
+  let beatFlash   = 0;   // sharp spike on kick
 
   function pulse(){
+    prevSmooth  = smoothBeat;
     smoothBeat += (beatEnergy - smoothBeat) * 0.25;
+    // sharp flash: detect rising edge
+    const rising = smoothBeat - prevSmooth;
+    if(rising > 0.06) beatFlash = 1;
+    beatFlash *= 0.82; // decay
+
+    /* days counter */
     const s = 1 + smoothBeat * 0.09;
-    daysEl.style.transform   = `scale(${s})`;
-    daysEl.style.textShadow  = `0 0 ${120+smoothBeat*120}px rgba(201,168,76,${0.25+smoothBeat*0.6})`;
-    ornLeft.style.opacity    = 0.4 + smoothBeat*0.6;
-    ornRight.style.opacity   = 0.4 + smoothBeat*0.6;
-    lastBeat = smoothBeat;
+    daysEl.style.transform  = `scale(${s})`;
+    daysEl.style.textShadow = `0 0 ${120+smoothBeat*120}px rgba(201,168,76,${0.25+smoothBeat*0.6})`;
+
+    /* ornaments */
+    ornLeft.style.opacity  = 0.4 + smoothBeat*0.6;
+    ornRight.style.opacity = 0.4 + smoothBeat*0.6;
+
+    /* names — scale gently + glow flash on beat */
+    if(namesEl){
+      const ns = 1 + smoothBeat*0.03 + beatFlash*0.04;
+      namesEl.style.transform = `scale(${ns})`;
+      // boost glow on active name
+      const glowSize   = 18  + beatFlash*60;
+      const glowAlpha  = 0.7 + beatFlash*0.3;
+      const glowSpread = 30  + smoothBeat*50;
+      const glow = `drop-shadow(0 0 ${glowSize}px rgba(201,168,76,${glowAlpha}))
+                    drop-shadow(0 0 ${glowSpread}px rgba(201,168,76,${0.4+smoothBeat*0.3}))
+                    drop-shadow(0 0 ${60+beatFlash*80}px rgba(201,168,76,${0.2+beatFlash*0.35}))`;
+      if(groomEl?.classList.contains('active'))  groomEl.style.filter = glow;
+      if(brideEl?.classList.contains('active'))   brideEl.style.filter = glow;
+    }
+
     requestAnimationFrame(pulse);
   }
   pulse();
