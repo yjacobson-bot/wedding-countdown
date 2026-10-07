@@ -30,12 +30,13 @@
       position: relative; z-index: 1;
       height: 100dvh;
       display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
+      align-items: center; justify-content: space-evenly;
       gap: 0;
-      padding-inline: max(48px, 8vw);
-      padding-block: calc(env(safe-area-inset-top,0px) + 16px)
-                     calc(env(safe-area-inset-bottom,0px) + 16px);
+      padding-inline: max(20px, 4vw);
+      padding-block: calc(env(safe-area-inset-top,0px) + 4px)
+                     calc(env(safe-area-inset-bottom,0px) + 6px);
       text-align: center;
+      overflow: hidden;
     }
     @media (prefers-reduced-motion:reduce) { .names::after { animation: none; } }
 
@@ -64,30 +65,21 @@
     }
     @media (prefers-reduced-motion:reduce) { .names { animation: none; } }
 
-    /* gold shimmer sweep */
-    .names::after {
-      content: '';
+    /* gold shimmer sweep — two beams, animated independently by JS */
+    .shimmer-beam {
       position: absolute;
-      top: -10%; left: -80%;
-      width: 55%; height: 120%;
+      top: -10%; width: 55%; height: 120%;
       background: linear-gradient(
         105deg,
         transparent 30%,
-        rgba(255,240,160,0.6) 50%,
+        rgba(255,240,160,0.65) 50%,
         transparent 70%
       );
-      transform: skewX(-15deg);
-      animation: shimmer 8s ease-in-out infinite;
-      pointer-events: none;
+      pointer-events: none; opacity: 0;
     }
-    @keyframes shimmer {
-      0%   { left: -80%; opacity: 0; }
-      8%   { opacity: 1; }
-      55%  { left: 120%; opacity: 1; }
-      62%  { left: 120%; opacity: 0; }
-      100% { left: 120%; opacity: 0; }
-    }
-    @media (prefers-reduced-motion:reduce) { .names::after { animation: none; } }
+    .shimmer-beam.ltr { transform: skewX(-15deg); }
+    .shimmer-beam.rtl { transform: skewX(15deg) scaleX(-1); }
+    @media (prefers-reduced-motion:reduce) { .shimmer-beam { display:none; } }
 
     /* amp spark container */
     .amp-wrap { position: relative; display: inline-block; vertical-align: middle; }
@@ -260,6 +252,8 @@
     <div class="names-frame">
       <div class="orn-line">✦ ◆ ✦</div>
       <h1 class="names">
+        <span class="shimmer-beam ltr" id="beam-ltr"></span>
+        <span class="shimmer-beam rtl" id="beam-rtl"></span>
         <span id="main-groom" class="name-btn">שימי</span><span class="amp-wrap"><span class="amp" id="amp-el">&amp;</span></span><span id="main-bride" class="name-btn">תמר</span>
       </h1>
       <div class="orn-line">✦ ◆ ✦</div>
@@ -816,6 +810,42 @@ let beatEnergy = 0; // 0-1, updated by audio engine
     setTimeout(fireSpark, 3200+Math.random()*2500);
   }
   setTimeout(fireSpark, 2500);
+})();
+
+/* ── shimmer beams on names ── */
+(function(){
+  const beamL = document.getElementById('beam-ltr');
+  const beamR = document.getElementById('beam-rtl');
+  if(!beamL || !beamR) return;
+
+  function sweep(beam, fromRight){
+    const start = fromRight ? '120%' : '-80%';
+    const end   = fromRight ? '-80%' : '120%';
+    beam.style.transition = 'none';
+    beam.style.left    = start;
+    beam.style.opacity = '0';
+    beam.offsetHeight; // reflow
+    beam.style.transition = 'left 1.1s cubic-bezier(.4,0,.6,1), opacity 0.18s ease';
+    beam.style.opacity = '1';
+    beam.style.left    = end;
+    setTimeout(() => { beam.style.opacity = '0'; }, 950);
+  }
+
+  function fire(){
+    const r = Math.random();
+    if(r < 0.45){
+      sweep(beamL, false);          // left → right
+    } else if(r < 0.8){
+      sweep(beamR, true);           // right → left
+    } else {
+      sweep(beamL, false);          // both simultaneously
+      setTimeout(() => sweep(beamR, true), 80);
+    }
+    // next fire: 3.5–5.5 seconds
+    setTimeout(fire, 3500 + Math.random() * 2000);
+  }
+
+  setTimeout(fire, 1800); // first fire after entrance animation
 })();
 </script>
 </body>
