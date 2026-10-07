@@ -234,22 +234,38 @@
 </main>
 
 <script>
-/* ════ FIT TEXT TO WIDTH ════ */
+/* ════ FIT TEXT — width AND height ════ */
 function fitText() {
-  const wrap = document.querySelector('.names-wrap');
-  const el   = document.getElementById('names');
-  const avail = wrap.clientWidth * 0.96;
-  let size = 8;
-  el.style.fontSize = size + 'vw';
-  while (el.scrollWidth < avail && size < 22) { size += 0.2; el.style.fontSize = size + 'vw'; }
-  while (el.scrollWidth > avail && size > 4)  { size -= 0.1; el.style.fontSize = size + 'vw'; }
+  const page  = document.querySelector('.page');
+  const wrap  = document.querySelector('.names-wrap');
+  const nameEl = document.getElementById('names');
 
-  // scale days and hms relative to name size
-  const daysSize = Math.max(size * 1.6, 12);
-  document.querySelector('.days-val').style.fontSize = Math.min(daysSize, 20) + 'vw';
-  const hmsSize = Math.max(size * 0.72, 5);
-  document.querySelectorAll('.hms-v').forEach(e => e.style.fontSize = hmsSize + 'vw');
-  document.querySelectorAll('.colon').forEach(e => e.style.fontSize = (hmsSize * 0.85) + 'vw');
+  // Step 1: fit names to available width
+  const availW = wrap.clientWidth * 0.94;
+  let size = 5;
+  nameEl.style.fontSize = size + 'vw';
+  while (nameEl.scrollWidth < availW && size < 20) { size += 0.2; nameEl.style.fontSize = size + 'vw'; }
+  while (nameEl.scrollWidth > availW && size > 3)  { size -= 0.1; nameEl.style.fontSize = size + 'vw'; }
+
+  // Step 2: scale days & hms relative to name (conservative ratios)
+  const daysEl = document.querySelector('.days-val');
+  daysEl.style.fontSize = (size * 1.05) + 'vw';
+  document.querySelectorAll('.hms-v').forEach(e => e.style.fontSize = (size * 0.52) + 'vw');
+  document.querySelectorAll('.colon').forEach(e => e.style.fontSize = (size * 0.44) + 'vw');
+
+  // Step 3: if still overflows vertically, shrink everything uniformly
+  requestAnimationFrame(() => {
+    const contentH = page.scrollHeight;
+    const viewH    = page.clientHeight;
+    if (contentH > viewH) {
+      const ratio = viewH / contentH * 0.96;
+      size *= ratio;
+      nameEl.style.fontSize = size + 'vw';
+      daysEl.style.fontSize = (size * 1.05) + 'vw';
+      document.querySelectorAll('.hms-v').forEach(e => e.style.fontSize = (size * 0.52) + 'vw');
+      document.querySelectorAll('.colon').forEach(e => e.style.fontSize = (size * 0.44) + 'vw');
+    }
+  });
 }
 fitText();
 window.addEventListener('resize', fitText);
