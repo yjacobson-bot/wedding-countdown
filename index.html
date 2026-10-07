@@ -46,9 +46,14 @@
       vertical-align: middle; margin-inline: 0.2em;
     }
 
-    .name-btn { transition: filter 0.25s; }
+    .name-btn { transition: filter 0.6s ease, opacity 0.6s ease; }
+    .name-btn.inactive { opacity: 0.35; filter: none; }
     .name-btn.active {
-      filter: drop-shadow(0 0 18px rgba(201,168,76,0.7));
+      filter:
+        drop-shadow(0 0 12px rgba(201,168,76,0.95))
+        drop-shadow(0 0 30px rgba(201,168,76,0.7))
+        drop-shadow(0 0 60px rgba(201,168,76,0.45))
+        drop-shadow(0 0 100px rgba(201,168,76,0.25));
     }
 
     /* breathing names */
@@ -756,8 +761,10 @@ let beatEnergy = 0; // 0-1, updated by audio engine
 
   function dismiss(who){
     initCtx();
-    mainGroom.classList.toggle('active', who==='groom');
-    mainBride.classList.toggle('active', who==='bride');
+    mainGroom.classList.toggle('active',   who==='groom');
+    mainGroom.classList.toggle('inactive', who==='bride');
+    mainBride.classList.toggle('active',   who==='bride');
+    mainBride.classList.toggle('inactive', who==='groom');
     splash.style.opacity='0';
     setTimeout(()=>splash.style.display='none', 900);
     setTimeout(animateMainNames, 1000);
