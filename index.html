@@ -349,22 +349,23 @@
     requestAnimationFrame(draw);
   }
 
-  /* meteor pool */
+  /* meteor pool — converge from left & right toward center */
   let meteors=[];
   function spawnMeteor(m){
-    const angle=(Math.random()*30+15)*Math.PI/180; /* diagonal down-left */
-    m.speed=Math.random()*6+5;
-    m.vx=-Math.cos(angle)*m.speed;
-    m.vy= Math.sin(angle)*m.speed;
-    m.x=Math.random()*c.width*0.9+c.width*0.05;
-    m.y=Math.random()*c.height*0.35;
-    m.maxLife=Math.random()*40+40;
+    const fromLeft = m.side === 'left';
+    const angle=(Math.random()*25+10)*Math.PI/180;
+    m.speed=Math.random()*7+5;
+    /* left side: shoot right-downward; right side: shoot left-downward */
+    m.vx = fromLeft ?  Math.cos(angle)*m.speed : -Math.cos(angle)*m.speed;
+    m.vy = Math.sin(angle)*m.speed;
+    m.x  = fromLeft ? Math.random()*c.width*0.2 : c.width*0.8+Math.random()*c.width*0.2;
+    m.y  = Math.random()*c.height*0.55;
+    m.maxLife=Math.random()*45+35;
     m.life=m.maxLife;
     m.active=true;
   }
-  meteors=Array.from({length:4},()=>{
-    const m={active:false,timer:Math.random()*200+60};
-    return m;
+  meteors=Array.from({length:14},(_,i)=>{
+    return {active:false, timer:Math.random()*120+20, side: i<7?'left':'right'};
   });
 
   resize();init();draw();addEventListener('resize',resize);
