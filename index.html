@@ -539,9 +539,9 @@ let beatEnergy = 0; // 0-1, updated by audio engine
   const FADE_DUR  = 3.0; // seconds crossfade
 
   let audioCtx, analyser, freqData;
-  const nodes = {}; // id -> { audio, gain }
-  let activeIds   = null;
-  let currentId   = null;
+  const nodes = {}; // id -> { audio, gain, _check, _ended }
+  let activeIds = null;
+  let currentId = null;
 
   function initCtx(){
     if(audioCtx) return;
@@ -560,8 +560,8 @@ let beatEnergy = 0; // 0-1, updated by audio engine
         gain.gain.value = 0;
         src.connect(gain);
         gain.connect(analyser);
-        nodes[id] = { audio, gain };
-      } catch(e){ nodes[id] = { audio, gain: null }; }
+        nodes[id] = { audio, gain, _check:null, _ended:null };
+      } catch(e){ nodes[id] = { audio, gain:null, _check:null, _ended:null }; }
     });
 
     /* beat detection loop */
@@ -581,42 +581,63 @@ let beatEnergy = 0; // 0-1, updated by audio engine
     return pool[Math.floor(Math.random()*pool.length)];
   }
 
+  function clearListeners(node){
+    if(node._check)  { node.audio.removeEventListener('timeupdate', node._check); node._check=null; }
+    if(node._ended)  { node.audio.removeEventListener('ended',      node._ended); node._ended=null; }
+  }
+
   function crossfadeTo(nextId){
-    const now = audioCtx.currentTime;
+    const now  = audioCtx.currentTime;
     const next = nodes[nextId];
     if(!next) return;
 
-    /* fade out current */
-    if(currentId && currentId!==nextId){
+    /* fade out & schedule cleanup of current */
+    if(currentId && currentId !== nextId){
       const cur = nodes[currentId];
+      clearListeners(cur);
       if(cur.gain){
-        cur.gain.gain.cancelScheduledValues(now);
-        cur.gain.gain.setValueAtTime(cur.gain.gain.value, now);
-        cur.gain.gain.linearRampToValueAtTime(0, now+FADE_DUR);
+        const g = cur.gain.gain;
+        g.cancelScheduledValues(now);
+        g.setValueAtTime(g.value, now);
+        g.linearRampToValueAtTime(0, now + FADE_DUR);
       }
       const prevId = currentId;
       setTimeout(()=>{
-        const p=nodes[prevId];
-        p.audio.pause(); p.audio.currentTime=0;
-      }, (FADE_DUR+0.3)*1000);
+        const p = nodes[prevId];
+        p.audio.pause(); p.audio.currentTime = 0;
+      }, (FADE_DUR + 0.3) * 1000);
     }
 
     /* fade in next */
     next.audio.currentTime = 0;
     next.audio.play().catch(()=>{});
     if(next.gain){
-      next.gain.gain.cancelScheduledValues(now);
-      next.gain.gain.setValueAtTime(0, now);
-      next.gain.gain.linearRampToValueAtTime(0.5, now+FADE_DUR);
+      const g = next.gain.gain;
+      g.cancelScheduledValues(now);
+      g.setValueAtTime(0, now);
+      g.linearRampToValueAtTime(0.5, now + FADE_DUR);
     }
 
     currentId = nextId;
 
-    next.audio.addEventListener('ended', ()=>{
-      if(currentId===nextId && activeIds){
-        crossfadeTo(pickRandom(activeIds, nextId));
+    /* start crossfade FADE_DUR seconds BEFORE song ends */
+    let fading = false;
+    next._check = function(){
+      if(fading || !next.audio.duration) return;
+      const remaining = next.audio.duration - next.audio.currentTime;
+      if(remaining > 0 && remaining <= FADE_DUR + 0.15){
+        fading = true;
+        clearListeners(next);
+        if(currentId === nextId && activeIds)
+          crossfadeTo(pickRandom(activeIds, nextId));
       }
-    }, {once:true});
+    };
+    next._ended = function(){
+      if(currentId === nextId && activeIds)
+        crossfadeTo(pickRandom(activeIds, nextId));
+    };
+    next.audio.addEventListener('timeupdate', next._check);
+    next.audio.addEventListener('ended',      next._ended, {once:true});
   }
 
   function startPlaylist(ids){
