@@ -559,44 +559,61 @@ let beatEnergy = 0; // 0-1, updated by audio engine
    BEAT-SYNC DOM PULSE
 ══════════════════════════════════════════ */
 (function(){
-  const daysEl    = document.getElementById('days');
-  const ornLeft   = document.getElementById('orn-left');
-  const ornRight  = document.getElementById('orn-right');
-  const namesEl   = document.querySelector('.names');
-  const groomEl   = document.getElementById('main-groom');
-  const brideEl   = document.getElementById('main-bride');
+  const daysEl      = document.getElementById('days');
+  const ornLeft     = document.getElementById('orn-left');
+  const ornRight    = document.getElementById('orn-right');
+  const namesFrame  = document.querySelector('.names-frame'); // wrapper — no breathe conflict
+  const groomEl     = document.getElementById('main-groom');
+  const brideEl     = document.getElementById('main-bride');
 
-  let smoothBeat  = 0;
-  let prevSmooth  = 0;
-  let beatFlash   = 0;   // sharp spike on kick
+  // golden flash overlay for strong beats
+  const flashEl = document.createElement('div');
+  Object.assign(flashEl.style, {
+    position:'fixed', inset:'0', pointerEvents:'none', zIndex:'2',
+    background:'radial-gradient(ellipse at 50% 30%, rgba(201,168,76,0.18) 0%, transparent 70%)',
+    opacity:'0', transition:'opacity 0.05s'
+  });
+  document.body.appendChild(flashEl);
+
+  let smoothBeat = 0;
+  let prevSmooth = 0;
+  let beatFlash  = 0;
 
   function pulse(){
-    prevSmooth  = smoothBeat;
-    smoothBeat += (beatEnergy - smoothBeat) * 0.25;
-    // sharp flash: detect rising edge
+    prevSmooth = smoothBeat;
+    smoothBeat += (beatEnergy - smoothBeat) * 0.28;
     const rising = smoothBeat - prevSmooth;
-    if(rising > 0.06) beatFlash = 1;
-    beatFlash *= 0.82; // decay
+    if(rising > 0.05) beatFlash = 1;
+    beatFlash *= 0.78;
 
-    /* days counter */
-    const s = 1 + smoothBeat * 0.09;
-    daysEl.style.transform  = `scale(${s})`;
+    /* days */
+    const ds = 1 + smoothBeat*0.09;
+    daysEl.style.transform  = `scale(${ds})`;
     daysEl.style.textShadow = `0 0 ${120+smoothBeat*120}px rgba(201,168,76,${0.25+smoothBeat*0.6})`;
 
     /* ornaments */
     ornLeft.style.opacity  = 0.4 + smoothBeat*0.6;
     ornRight.style.opacity = 0.4 + smoothBeat*0.6;
 
-    /* names — brightness pulse on beat (no rectangle artifact) */
-    if(namesEl){
-      const brightness = 1 + smoothBeat*0.35 + beatFlash*1.1;
-      const activeEl = groomEl?.classList.contains('active') ? groomEl
-                     : brideEl?.classList.contains('active') ? brideEl : null;
-      if(activeEl) activeEl.style.filter =
-        `drop-shadow(0 0 ${12+beatFlash*55}px rgba(201,168,76,${0.7+beatFlash*0.3}))
-         drop-shadow(0 0 ${28+smoothBeat*40}px rgba(201,168,76,${0.35+smoothBeat*0.3}))
-         brightness(${brightness})`;
+    /* names-frame scale — separate from breathe so no conflict */
+    if(namesFrame){
+      const ns = 1 + smoothBeat*0.04 + beatFlash*0.055;
+      namesFrame.style.transform = `scale(${ns})`;
     }
+
+    /* active name glow — brightness + glow, no box */
+    const activeEl = groomEl?.classList.contains('active') ? groomEl
+                   : brideEl?.classList.contains('active') ? brideEl : null;
+    if(activeEl){
+      const br = 1 + smoothBeat*0.4 + beatFlash*1.3;
+      activeEl.style.filter =
+        `drop-shadow(0 0 ${10+beatFlash*50}px rgba(201,168,76,${0.65+beatFlash*0.35}))
+         drop-shadow(0 0 ${25+smoothBeat*35}px rgba(201,168,76,${0.3+smoothBeat*0.3}))
+         brightness(${br})`;
+    }
+
+    /* global flash on kick */
+    flashEl.style.opacity = (beatFlash * 0.9).toFixed(3);
 
     requestAnimationFrame(pulse);
   }
