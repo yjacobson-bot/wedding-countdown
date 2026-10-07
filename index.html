@@ -657,36 +657,23 @@ let beatEnergy = 0; // 0-1, updated by audio engine
 
   /* ── main-page name entrance animation (fires once after splash) ── */
   function animateMainNames(){
-    const DIRS = [
-      'translateY(-35px) rotate(-8deg)',
-      'translateX(-28px) translateY(-22px) rotate(6deg)',
-      'translateY(35px)  rotate(8deg)',
-      'translateX(28px)  translateY(-22px) rotate(-6deg)',
-      'translateX(-22px) rotate(5deg)',
-      'translateY(-28px) rotate(-5deg)',
-      'translateX(22px)  translateY(22px)  rotate(7deg)',
-      'translateY(28px)  rotate(-7deg)',
+    const targets = [
+      { el: document.getElementById('main-groom'), dy: '-40px' },
+      { el: document.getElementById('main-bride'),  dy:  '40px' },
     ];
-    [document.getElementById('main-groom'), document.getElementById('main-bride')].forEach(el=>{
+    targets.forEach(({el, dy}, i) => {
       if(!el) return;
-      const text = el.textContent;
-      el.textContent = '';
-      [...text].forEach((ch, i) => {
-        const sp = document.createElement('span');
-        sp.textContent = ch;
-        sp.style.cssText = `display:inline-block;opacity:0;` +
-          `transform:${DIRS[i % DIRS.length]} scale(0.5);` +
-          `transition:transform 0.65s cubic-bezier(.2,.8,.3,1) ${i*0.1}s,` +
-          `opacity 0.5s ease ${i*0.1}s;`;
-        el.appendChild(sp);
-      });
-      requestAnimationFrame(()=>requestAnimationFrame(()=>{
-        el.querySelectorAll('span').forEach(sp=>{
-          sp.style.opacity='1';
-          sp.style.transform='translate(0,0) rotate(0deg) scale(1)';
-        });
-      }));
+      el.style.opacity   = '0';
+      el.style.transform = `translateY(${dy}) scale(0.85)`;
+      el.style.transition = `opacity 0.8s ease ${i*0.2}s, transform 0.8s cubic-bezier(.2,.8,.3,1) ${i*0.2}s`;
     });
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{
+      targets.forEach(({el}) => {
+        if(!el) return;
+        el.style.opacity   = '1';
+        el.style.transform = 'translateY(0) scale(1)';
+      });
+    }));
   }
 
   /* ── splash UI ── */
