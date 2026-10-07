@@ -132,6 +132,35 @@
     .done { display:none; font-family:'Cormorant Garamond',serif; font-style:italic;
       font-size:min(5vw,7vh); color:var(--golds); }
 
+    /* shimmer on names */
+    .names {
+      position: relative;
+      overflow: hidden;
+    }
+    .names::after {
+      content: '';
+      position: absolute;
+      top: -10%; left: -80%;
+      width: 60%; height: 120%;
+      background: linear-gradient(
+        105deg,
+        transparent 30%,
+        rgba(255,240,160,0.55) 50%,
+        transparent 70%
+      );
+      transform: skewX(-15deg);
+      animation: shimmer 5s ease-in-out infinite;
+      pointer-events: none;
+    }
+    @keyframes shimmer {
+      0%   { left: -80%; opacity: 0; }
+      10%  { opacity: 1; }
+      40%  { left: 120%; opacity: 1; }
+      50%  { left: 120%; opacity: 0; }
+      100% { left: 120%; opacity: 0; }
+    }
+    @media (prefers-reduced-motion:reduce) { .names::after { animation: none; } }
+
     .footer {
       font-size: clamp(0.5rem, 0.9vw, 0.65rem);
       letter-spacing: 0.22em; text-transform: uppercase; color: var(--goldd);
@@ -294,8 +323,50 @@
       ctx.beginPath();ctx.arc(s.x*W,s.y*H,s.r,0,Math.PI*2);
       ctx.fillStyle=s.gold?`rgba(201,168,76,${a})`:`rgba(232,223,200,${a})`;ctx.fill();
     }
+    /* shooting stars */
+    for(const m of meteors){
+      if(!m.active){
+        m.timer-=1;
+        if(m.timer<=0) spawnMeteor(m);
+        continue;
+      }
+      m.x+=m.vx; m.y+=m.vy; m.life-=1;
+      const prog=1-m.life/m.maxLife;
+      const alpha=prog<0.2?prog/0.2:(prog>0.8?(1-prog)/0.2:1);
+      const tailLen=m.speed*18;
+      const gm=ctx.createLinearGradient(m.x,m.y,m.x-m.vx*tailLen/m.speed,m.y-m.vy*tailLen/m.speed);
+      gm.addColorStop(0,`rgba(255,240,180,${0.9*alpha})`);
+      gm.addColorStop(1,`rgba(201,168,76,0)`);
+      ctx.beginPath();ctx.moveTo(m.x,m.y);
+      ctx.lineTo(m.x-m.vx*tailLen/m.speed,m.y-m.vy*tailLen/m.speed);
+      ctx.strokeStyle=gm;ctx.lineWidth=1.5;ctx.stroke();
+      /* head glow */
+      const gh=ctx.createRadialGradient(m.x,m.y,0,m.x,m.y,4);
+      gh.addColorStop(0,`rgba(255,248,200,${0.8*alpha})`);gh.addColorStop(1,'rgba(255,248,200,0)');
+      ctx.beginPath();ctx.arc(m.x,m.y,4,0,Math.PI*2);ctx.fillStyle=gh;ctx.fill();
+      if(m.life<=0){m.active=false;m.timer=Math.random()*300+120;}
+    }
     requestAnimationFrame(draw);
   }
+
+  /* meteor pool */
+  let meteors=[];
+  function spawnMeteor(m){
+    const angle=(Math.random()*30+15)*Math.PI/180; /* diagonal down-left */
+    m.speed=Math.random()*6+5;
+    m.vx=-Math.cos(angle)*m.speed;
+    m.vy= Math.sin(angle)*m.speed;
+    m.x=Math.random()*c.width*0.9+c.width*0.05;
+    m.y=Math.random()*c.height*0.35;
+    m.maxLife=Math.random()*40+40;
+    m.life=m.maxLife;
+    m.active=true;
+  }
+  meteors=Array.from({length:4},()=>{
+    const m={active:false,timer:Math.random()*200+60};
+    return m;
+  });
+
   resize();init();draw();addEventListener('resize',resize);
 })();
 
