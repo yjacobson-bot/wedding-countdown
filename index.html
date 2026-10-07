@@ -657,23 +657,16 @@ let beatEnergy = 0; // 0-1, updated by audio engine
 
   /* ── main-page name entrance animation (fires once after splash) ── */
   function animateMainNames(){
-    const targets = [
-      { el: document.getElementById('main-groom'), dy: '-40px' },
-      { el: document.getElementById('main-bride'),  dy:  '40px' },
-    ];
-    targets.forEach(({el, dy}, i) => {
-      if(!el) return;
-      el.style.opacity   = '0';
-      el.style.transform = `translateY(${dy}) scale(0.85)`;
-      el.style.transition = `opacity 0.8s ease ${i*0.2}s, transform 0.8s cubic-bezier(.2,.8,.3,1) ${i*0.2}s`;
-    });
-    requestAnimationFrame(()=>requestAnimationFrame(()=>{
-      targets.forEach(({el}) => {
-        if(!el) return;
-        el.style.opacity   = '1';
-        el.style.transform = 'translateY(0) scale(1)';
-      });
-    }));
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes nameIn {
+        from { opacity:0; transform:translateY(var(--name-dy,−40px)) scale(0.85); }
+        to   { opacity:1; transform:translateY(0) scale(1); }
+      }
+      #main-groom { --name-dy:-40px; animation:nameIn 0.9s cubic-bezier(.2,.8,.3,1) both; }
+      #main-bride { --name-dy: 40px; animation:nameIn 0.9s cubic-bezier(.2,.8,.3,1) 0.25s both; }
+    `;
+    document.head.appendChild(style);
   }
 
   /* ── splash UI ── */
