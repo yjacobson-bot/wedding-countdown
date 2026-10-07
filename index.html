@@ -184,10 +184,62 @@
       font-size: clamp(0.5rem, 0.9vw, 0.65rem);
       letter-spacing: 0.22em; text-transform: uppercase; color: var(--goldd);
     }
+
+    /* ── corner buttons ── */
+    .corner-btn {
+      position: fixed; z-index: 50;
+      width: 36px; height: 36px; border-radius: 50%;
+      background: rgba(201,168,76,0.12);
+      border: 1px solid rgba(201,168,76,0.3);
+      color: rgba(201,168,76,0.7);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; font-size: 15px;
+      opacity: 0; transition: opacity 0.4s, background 0.2s, color 0.2s;
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      user-select: none;
+    }
+    body:hover .corner-btn,
+    .corner-btn:focus { opacity: 1; }
+    .corner-btn:hover { background: rgba(201,168,76,0.25); color: #e2c97e; }
+    #btn-music { bottom: 20px; left: 20px; bottom: calc(20px + env(safe-area-inset-bottom,0px)); }
+    #btn-invite { bottom: 20px; right: 20px; bottom: calc(20px + env(safe-area-inset-bottom,0px)); }
+
+    /* ── invitation lightbox ── */
+    #inv-overlay {
+      display: none; position: fixed; inset: 0; z-index: 200;
+      background: rgba(0,0,0,0.88);
+      align-items: center; justify-content: center;
+      backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    }
+    #inv-overlay.open { display: flex; }
+    #inv-overlay img {
+      max-width: min(92vw, 520px); max-height: 90dvh;
+      border-radius: 12px;
+      box-shadow: 0 0 60px rgba(201,168,76,0.3);
+    }
+    #inv-close {
+      position: absolute; top: 16px; right: 16px;
+      width: 36px; height: 36px; border-radius: 50%;
+      background: rgba(201,168,76,0.15); border: 1px solid rgba(201,168,76,0.35);
+      color: #e2c97e; font-size: 18px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+    }
+    #inv-close:hover { background: rgba(201,168,76,0.3); }
   </style>
 </head>
 <body>
 <canvas id="bg-canvas"></canvas>
+
+<!-- corner buttons (appear on hover/touch) -->
+<button id="btn-music"  class="corner-btn" aria-label="עצור/נגן מוזיקה">♪</button>
+<button id="btn-invite" class="corner-btn" aria-label="הצג הזמנה">✉</button>
+
+<!-- invitation lightbox -->
+<div id="inv-overlay">
+  <button id="inv-close" aria-label="סגור">✕</button>
+  <img src="invitation.png" alt="הזמנה לחתונה" />
+</div>
 
 <audio id="ag1" src="music.mp3"        preload="none" crossorigin="anonymous"></audio>
 <audio id="ag2" src="music2.mp3"       preload="none" crossorigin="anonymous"></audio>
@@ -898,6 +950,21 @@ let beatEnergy = 0; // 0-1, updated by audio engine
   btnGroom.addEventListener('touchstart',()=>dismiss('groom'), {once:true, passive:true});
   btnBride.addEventListener('click',     ()=>dismiss('bride'),  {once:true});
   btnBride.addEventListener('touchstart',()=>dismiss('bride'),  {once:true, passive:true});
+
+  /* expose toggle for the corner button */
+  window._musicToggle = function(){
+    if(!audioCtx || !currentId) return;
+    const node = nodes[currentId];
+    if(!node) return;
+    if(node.audio.paused){
+      audioCtx.resume().then(()=>{ node.audio.play().catch(()=>{}); });
+      if(node.gain){ node.gain.gain.setValueAtTime(0.85, audioCtx.currentTime); }
+      window._musicSetPaused?.(false);
+    } else {
+      node.audio.pause();
+      window._musicSetPaused?.(true);
+    }
+  };
 })();
 
 /* ── & spark effect ── */
@@ -934,6 +1001,41 @@ let beatEnergy = 0; // 0-1, updated by audio engine
     setTimeout(fireSpark, 3200+Math.random()*2500);
   }
   setTimeout(fireSpark, 2500);
+})();
+
+/* ── music play/pause button ── */
+(function(){
+  const btn = document.getElementById('btn-music');
+  let paused = false;
+
+  // expose toggle so audio engine can update icon on auto-play
+  window._musicSetPaused = function(v){
+    paused = v;
+    btn.textContent = paused ? '▶' : '♪';
+  };
+
+  btn.addEventListener('click', () => {
+    if(!window._musicToggle){ return; } // audio engine not ready yet
+    window._musicToggle();
+  });
+
+  // show on touch devices permanently after first touch
+  document.addEventListener('touchstart', () => {
+    document.getElementById('btn-music').style.opacity  = '1';
+    document.getElementById('btn-invite').style.opacity = '1';
+  }, { once: true, passive: true });
+})();
+
+/* ── invitation lightbox ── */
+(function(){
+  const overlay = document.getElementById('inv-overlay');
+  const btnOpen  = document.getElementById('btn-invite');
+  const btnClose = document.getElementById('inv-close');
+
+  btnOpen.addEventListener('click', () => overlay.classList.add('open'));
+  btnClose.addEventListener('click', () => overlay.classList.remove('open'));
+  overlay.addEventListener('click', e => { if(e.target === overlay) overlay.classList.remove('open'); });
+  document.addEventListener('keydown', e => { if(e.key === 'Escape') overlay.classList.remove('open'); });
 })();
 
 /* ── shimmer beams on names ── */
