@@ -177,10 +177,12 @@
 </head>
 <body>
 <canvas id="bg-canvas"></canvas>
-<audio id="audio-groom" src="music.mp3"       loop preload="none"></audio>
-<audio id="audio-bride" src="music_bride.mp3" loop preload="none"></audio>
-<audio id="audio-groom2" src="music2.mp3"       loop preload="none"></audio>
-<audio id="audio-bride2" src="music2_bride.mp3" loop preload="none"></audio>
+<audio id="audio-groom"  src="music.mp3"        preload="none"></audio>
+<audio id="audio-bride"  src="music_bride.mp3"  preload="none"></audio>
+<audio id="audio-groom2" src="music2.mp3"       preload="none"></audio>
+<audio id="audio-bride2" src="music2_bride.mp3" preload="none"></audio>
+<audio id="audio-groom3" src="music3.mp3"       preload="none"></audio>
+<audio id="audio-bride3" src="music3_bride.mp3" preload="none"></audio>
 
 <!-- splash screen -->
 <div id="splash" style="
@@ -433,13 +435,26 @@
   const mainGroom = document.getElementById('main-groom');
   const mainBride = document.getElementById('main-bride');
 
-  const groomTracks = ['audio-groom','audio-groom2'].map(id=>document.getElementById(id));
-  const brideTracks = ['audio-bride','audio-bride2'].map(id=>document.getElementById(id));
+  const groomTracks = ['audio-groom','audio-groom2','audio-groom3'].map(id=>document.getElementById(id));
+  const brideTracks = ['audio-bride','audio-bride2','audio-bride3'].map(id=>document.getElementById(id));
   [...groomTracks,...brideTracks].forEach(a=>a.volume=0.5);
 
-  function pickRandom(tracks){ return tracks[Math.floor(Math.random()*tracks.length)]; }
+  let activeTracks = null;
+  let activeAudio  = null;
 
-  let activeAudio = null;
+  function pickRandom(tracks, exclude){
+    const pool = tracks.length > 1 ? tracks.filter(t=>t!==exclude) : tracks;
+    return pool[Math.floor(Math.random()*pool.length)];
+  }
+
+  function playNext(){
+    if(!activeTracks) return;
+    const next = pickRandom(activeTracks, activeAudio);
+    if(activeAudio){ activeAudio.pause(); activeAudio.currentTime=0; }
+    activeAudio = next;
+    next.play().catch(()=>{});
+    next.addEventListener('ended', playNext, {once:true});
+  }
 
   /* hover glow on splash buttons */
   [btnGroom, btnBride].forEach(btn => {
@@ -456,12 +471,8 @@
   function setActive(who) {
     mainGroom.classList.toggle('active', who === 'groom');
     mainBride.classList.toggle('active', who === 'bride');
-    const next = pickRandom(who === 'groom' ? groomTracks : brideTracks);
-    if(activeAudio && activeAudio !== next){
-      activeAudio.pause(); activeAudio.currentTime = 0;
-    }
-    activeAudio = next;
-    next.play().catch(()=>{});
+    activeTracks = who === 'groom' ? groomTracks : brideTracks;
+    playNext();
   }
 
   function dismiss(who) {
