@@ -44,14 +44,29 @@
       letter-spacing: 0.28em; text-transform: uppercase; color: var(--gold);
     }
 
+    /* ornamental frame around names */
+    .names-frame {
+      display: flex; flex-direction: column; align-items: center; gap: 0.5vh;
+    }
+    .orn-line {
+      display: flex; align-items: center; gap: 8px;
+      color: var(--gold); font-size: 0.7rem; letter-spacing: 0.08em;
+      opacity: 0.85; user-select: none;
+    }
+    .orn-line::before, .orn-line::after {
+      content: ''; flex: 1; max-width: 55px; height: 1px;
+    }
+    .orn-line::before { background: linear-gradient(to right, transparent, #c9a84c); }
+    .orn-line::after  { background: linear-gradient(to left,  transparent, #c9a84c); }
+
     .names {
-      font-family: 'Frank Ruhl Libre', 'Cormorant Garamond', serif; font-weight: 300;
+      font-family: 'Frank Ruhl Libre', 'Cormorant Garamond', serif; font-weight: 400;
       font-size: min(11vw, 17vh);
       line-height: 1; white-space: nowrap;
-      background: linear-gradient(160deg, #ede4cc 20%, #e2c97e 50%, #c9a84c 65%, #ede4cc 85%);
+      background: linear-gradient(160deg, #f5eedd 10%, #f0d98a 40%, #c9a84c 60%, #f0d98a 75%, #f5eedd 95%);
       -webkit-background-clip: text; -webkit-text-fill-color: transparent;
       background-clip: text;
-      filter: drop-shadow(0 0 30px rgba(201,168,76,0.3));
+      filter: drop-shadow(0 0 40px rgba(201,168,76,0.55)) drop-shadow(0 0 80px rgba(201,168,76,0.2));
       position: relative; overflow: hidden;
     }
     .names::after {
@@ -106,9 +121,10 @@
     /* נותרו label */
     .notaru {
       font-family: 'Cormorant Garamond', serif; font-style: italic;
-      font-size: clamp(1rem, 2.2vw, 1.5rem);
-      color: var(--golds); letter-spacing: 0.12em;
-      margin-top: 2px;
+      font-size: clamp(1.6rem, 4vw, 3rem);
+      color: var(--golds); letter-spacing: 0.18em;
+      margin-bottom: 0.1em;
+      text-shadow: 0 0 30px rgba(201,168,76,0.5);
     }
 
     .orndiv {
@@ -221,22 +237,22 @@
     </p>
     <div style="display:flex;align-items:center;direction:rtl;">
       <span id="btn-groom" style="
-        font-family:'Frank Ruhl Libre','Cormorant Garamond',serif;font-weight:300;
+        font-family:'Frank Ruhl Libre','Cormorant Garamond',serif;font-weight:400;
         font-size:clamp(3rem,12vw,9rem);line-height:1;
-        background:linear-gradient(160deg,#ede4cc 20%,#e2c97e 50%,#c9a84c 65%,#ede4cc 85%);
+        background:linear-gradient(160deg,#f5eedd 10%,#f0d98a 40%,#c9a84c 60%,#f0d98a 75%,#f5eedd 95%);
         -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
         cursor:pointer;transition:filter 0.2s;
-        filter:drop-shadow(0 2px 20px rgba(0,0,0,0.9));user-select:none;
+        filter:drop-shadow(0 0 30px rgba(201,168,76,0.6)) drop-shadow(0 2px 20px rgba(0,0,0,0.9));user-select:none;
       ">שימי</span>
       <span style="font-family:'Heebo',sans-serif;font-size:clamp(1.2rem,4vw,3.5rem);
         color:#c9a84c;margin-inline:0.15em;line-height:1;">&amp;</span>
       <span id="btn-bride" style="
-        font-family:'Frank Ruhl Libre','Cormorant Garamond',serif;font-weight:300;
+        font-family:'Frank Ruhl Libre','Cormorant Garamond',serif;font-weight:400;
         font-size:clamp(3rem,12vw,9rem);line-height:1;
-        background:linear-gradient(160deg,#ede4cc 20%,#e2c97e 50%,#c9a84c 65%,#ede4cc 85%);
+        background:linear-gradient(160deg,#f5eedd 10%,#f0d98a 40%,#c9a84c 60%,#f0d98a 75%,#f5eedd 95%);
         -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
         cursor:pointer;transition:filter 0.2s;
-        filter:drop-shadow(0 2px 20px rgba(0,0,0,0.9));user-select:none;
+        filter:drop-shadow(0 0 30px rgba(201,168,76,0.6)) drop-shadow(0 2px 20px rgba(0,0,0,0.9));user-select:none;
       ">תמר</span>
     </div>
     <p style="font-family:'Cormorant Garamond',serif;font-style:italic;
@@ -256,16 +272,19 @@
 
 <main class="page">
   <div class="top">
-    <h1 class="names">
-      <span id="main-groom" class="name-btn">שימי</span><span class="amp-wrap"><span class="amp" id="amp-el">&amp;</span></span><span id="main-bride" class="name-btn">תמר</span>
-    </h1>
+    <div class="names-frame">
+      <div class="orn-line">✦ ◆ ✦</div>
+      <h1 class="names">
+        <span id="main-groom" class="name-btn">שימי</span><span class="amp-wrap"><span class="amp" id="amp-el">&amp;</span></span><span id="main-bride" class="name-btn">תמר</span>
+      </h1>
+      <div class="orn-line">✦ ◆ ✦</div>
+    </div>
   </div>
 
   <div class="dates">
     <div class="orndiv"><div class="dia"></div></div>
     <p class="date-he">כ״ט חשון תשפ״ז</p>
     <p class="date-en">09 · 11 · 2026 &nbsp;|&nbsp; 18:00</p>
-    <p class="notaru">נותרו</p>
   </div>
 
   <div class="middle">
@@ -283,6 +302,7 @@
     </span>
 
     <div class="days-block">
+      <p class="notaru">נותרו</p>
       <span class="days-val" id="days">--</span>
       <span class="days-lbl">ימים</span>
     </div>
