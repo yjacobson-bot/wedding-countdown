@@ -659,12 +659,10 @@ let beatEnergy = 0; // 0-1, updated by audio engine
   function animateMainNames(){
     const style = document.createElement('style');
     style.textContent = `
-      @keyframes nameIn {
-        from { opacity:0; transform:translateY(var(--name-dy,−40px)) scale(0.85); }
-        to   { opacity:1; transform:translateY(0) scale(1); }
-      }
-      #main-groom { --name-dy:-40px; animation:nameIn 0.9s cubic-bezier(.2,.8,.3,1) both; }
-      #main-bride { --name-dy: 40px; animation:nameIn 0.9s cubic-bezier(.2,.8,.3,1) 0.25s both; }
+      @keyframes nameInTop    { from{opacity:0;transform:translateY(-45px) scale(0.8)} to{opacity:1;transform:none} }
+      @keyframes nameInBottom { from{opacity:0;transform:translateY( 45px) scale(0.8)} to{opacity:1;transform:none} }
+      #main-groom { animation: nameInTop    0.9s cubic-bezier(.2,.8,.3,1.05) both; }
+      #main-bride { animation: nameInBottom 0.9s cubic-bezier(.2,.8,.3,1.05) 0.22s both; }
     `;
     document.head.appendChild(style);
   }
