@@ -179,6 +179,8 @@
 <canvas id="bg-canvas"></canvas>
 <audio id="audio-groom" src="music.mp3"       loop preload="none"></audio>
 <audio id="audio-bride" src="music_bride.mp3" loop preload="none"></audio>
+<audio id="audio-groom2" src="music2.mp3"       loop preload="none"></audio>
+<audio id="audio-bride2" src="music2_bride.mp3" loop preload="none"></audio>
 
 <!-- splash screen -->
 <div id="splash" style="
@@ -425,15 +427,17 @@
 
 /* ════ SPLASH + MUSIC ════ */
 (function(){
-  const splash      = document.getElementById('splash');
-  const audioGroom  = document.getElementById('audio-groom');
-  const audioBride  = document.getElementById('audio-bride');
-  const btnGroom    = document.getElementById('btn-groom');
-  const btnBride    = document.getElementById('btn-bride');
-  const mainGroom   = document.getElementById('main-groom');
-  const mainBride   = document.getElementById('main-bride');
-  audioGroom.volume = 0.5;
-  audioBride.volume = 0.5;
+  const splash    = document.getElementById('splash');
+  const btnGroom  = document.getElementById('btn-groom');
+  const btnBride  = document.getElementById('btn-bride');
+  const mainGroom = document.getElementById('main-groom');
+  const mainBride = document.getElementById('main-bride');
+
+  const groomTracks = ['audio-groom','audio-groom2'].map(id=>document.getElementById(id));
+  const brideTracks = ['audio-bride','audio-bride2'].map(id=>document.getElementById(id));
+  [...groomTracks,...brideTracks].forEach(a=>a.volume=0.5);
+
+  function pickRandom(tracks){ return tracks[Math.floor(Math.random()*tracks.length)]; }
 
   let activeAudio = null;
 
@@ -450,10 +454,9 @@
   });
 
   function setActive(who) {
-    /* who = 'groom' | 'bride' */
     mainGroom.classList.toggle('active', who === 'groom');
     mainBride.classList.toggle('active', who === 'bride');
-    const next = who === 'groom' ? audioGroom : audioBride;
+    const next = pickRandom(who === 'groom' ? groomTracks : brideTracks);
     if(activeAudio && activeAudio !== next){
       activeAudio.pause(); activeAudio.currentTime = 0;
     }
