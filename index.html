@@ -653,7 +653,7 @@ let beatEnergy = 0; // 0-1, updated by audio engine
       const g = next.gain.gain;
       g.cancelScheduledValues(now);
       g.setValueAtTime(0, now);
-      g.linearRampToValueAtTime(0.5, now + FADE_DUR);
+      g.linearRampToValueAtTime(0.85, now + FADE_DUR);
     }
 
     currentId = nextId;
@@ -690,7 +690,7 @@ let beatEnergy = 0; // 0-1, updated by audio engine
   function startPlaylist(ids, who){
     activeIds = ids;
     const saved = who ? loadPos(who) : null;
-    if(saved && ids.includes(saved.id) && saved.t > 2){
+    if(saved && ids.includes(saved.id) && saved.t > 5){
       crossfadeTo(saved.id, saved.t);
     } else {
       crossfadeTo(pickRandom(ids, null));
