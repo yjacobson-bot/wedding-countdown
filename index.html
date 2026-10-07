@@ -695,8 +695,11 @@ let beatEnergy = 0; // 0-1, updated by audio engine
       }
       const prevId = currentId;
       setTimeout(()=>{
-        const p = nodes[prevId];
-        p.audio.pause(); p.audio.currentTime = 0;
+        // only pause if this song is not currently playing as the active song
+        if(currentId !== prevId){
+          const p = nodes[prevId];
+          p.audio.pause(); p.audio.currentTime = 0;
+        }
       }, (FADE_DUR + 0.3) * 1000);
     }
 
@@ -838,7 +841,14 @@ let beatEnergy = 0; // 0-1, updated by audio engine
 
   function switchSide(who){
     if(!audioCtx || currentSide === who) return;
-    savePos(currentSide);
+    // snapshot position NOW before anything changes
+    const snapId = currentId;
+    const snapT  = snapId ? (nodes[snapId]?.audio?.currentTime || 0) : 0;
+    const snapWho = currentSide;
+    if(snapId && snapT > 0){
+      try { localStorage.setItem('wc_'+snapWho, JSON.stringify({id:snapId, t:snapT})); } catch(e){}
+    }
+    if(saveInterval){ clearInterval(saveInterval); saveInterval = null; }
 
     // animate names out, then switch, then animate back in
     const allSpans = document.querySelectorAll('#main-groom span[data-li], #main-bride span[data-li]');
