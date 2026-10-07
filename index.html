@@ -466,12 +466,23 @@ let beatEnergy = 0; // 0-1, updated by audio engine
       ctx.fillStyle=g; ctx.fill();
     }
 
-    /* stars */
+    /* stars — pulse strongly on beat */
     for(const s of stars){
-      const a = s.base + Math.sin(t*s.speed+s.phase)*0.18 + beat*0.2;
-      ctx.beginPath(); ctx.arc(s.x*W, s.y*H, s.r*(1+beat*0.4), 0, Math.PI*2);
+      const twinkle = Math.sin(t*s.speed+s.phase)*0.18;
+      const a = Math.min(1, s.base + twinkle + beat*0.55);
+      const r = s.r * (1 + beat*1.1);
+      ctx.beginPath(); ctx.arc(s.x*W, s.y*H, r, 0, Math.PI*2);
       ctx.fillStyle = s.gold?`rgba(201,168,76,${a})`:`rgba(232,223,200,${a})`;
       ctx.fill();
+      /* extra glow halo on strong beats */
+      if(beat > 0.35){
+        ctx.beginPath(); ctx.arc(s.x*W, s.y*H, r*3.5, 0, Math.PI*2);
+        const gc = ctx.createRadialGradient(s.x*W,s.y*H,r,s.x*W,s.y*H,r*3.5);
+        const col = s.gold ? '201,168,76' : '232,223,200';
+        gc.addColorStop(0,`rgba(${col},${beat*0.25})`);
+        gc.addColorStop(1,`rgba(${col},0)`);
+        ctx.fillStyle = gc; ctx.fill();
+      }
     }
 
     /* shooting stars */
@@ -759,15 +770,36 @@ let beatEnergy = 0; // 0-1, updated by audio engine
     });
   });
 
-  function dismiss(who){
-    initCtx();
+  let currentSide = null;
+
+  function setSide(who){
     mainGroom.classList.toggle('active',   who==='groom');
     mainGroom.classList.toggle('inactive', who==='bride');
     mainBride.classList.toggle('active',   who==='bride');
     mainBride.classList.toggle('inactive', who==='groom');
+    currentSide = who;
+  }
+
+  function switchSide(who){
+    if(!audioCtx || currentSide === who) return;
+    setSide(who);
+    // crossfade to new playlist immediately
+    const newIds = who==='groom' ? GROOM_IDS : BRIDE_IDS;
+    activeIds = newIds;
+    crossfadeTo(pickRandom(newIds, currentId));
+  }
+
+  function dismiss(who){
+    initCtx();
+    setSide(who);
     splash.style.opacity='0';
     setTimeout(()=>splash.style.display='none', 900);
     setTimeout(animateMainNames, 1000);
+    // attach side-switch listeners to main name buttons
+    mainGroom.style.cursor = 'pointer';
+    mainBride.style.cursor  = 'pointer';
+    mainGroom.addEventListener('click', ()=>switchSide('groom'));
+    mainBride.addEventListener('click',  ()=>switchSide('bride'));
     // resume AudioContext (may be suspended on iOS/Android even after tap)
     const startAfterResume = () => startPlaylist(who==='groom' ? GROOM_IDS : BRIDE_IDS, who);
     if(audioCtx.state === 'suspended'){
