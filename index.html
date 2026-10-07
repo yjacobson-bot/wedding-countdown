@@ -166,9 +166,11 @@
 <audio id="ag1" src="music.mp3"        preload="none" crossorigin="anonymous"></audio>
 <audio id="ag2" src="music2.mp3"       preload="none" crossorigin="anonymous"></audio>
 <audio id="ag3" src="music3.mp3"       preload="none" crossorigin="anonymous"></audio>
+<audio id="ag4" src="music4.mp3"       preload="none" crossorigin="anonymous"></audio>
 <audio id="ab1" src="music_bride.mp3"  preload="none" crossorigin="anonymous"></audio>
 <audio id="ab2" src="music2_bride.mp3" preload="none" crossorigin="anonymous"></audio>
 <audio id="ab3" src="music3_bride.mp3" preload="none" crossorigin="anonymous"></audio>
+<audio id="ab4" src="music4_bride.mp3" preload="none" crossorigin="anonymous"></audio>
 
 <!-- splash -->
 <div id="splash" style="
@@ -532,8 +534,8 @@ let beatEnergy = 0; // 0-1, updated by audio engine
    AUDIO ENGINE — Web Audio API + crossfade
 ══════════════════════════════════════════ */
 (function(){
-  const GROOM_IDS = ['ag1','ag2','ag3'];
-  const BRIDE_IDS = ['ab1','ab2','ab3'];
+  const GROOM_IDS = ['ag1','ag2','ag3','ag4'];
+  const BRIDE_IDS = ['ab1','ab2','ab3','ab4'];
   const FADE_DUR  = 3.0; // seconds crossfade
 
   let audioCtx, analyser, freqData;
