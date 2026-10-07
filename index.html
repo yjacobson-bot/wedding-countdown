@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>שימי ותמר</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Heebo:wght@300;400;500&display=swap" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Frank+Ruhl+Libre:wght@300;400;500&family=Heebo:wght@300;400;500&display=swap" />
   <style>
     :root {
       --bg:    #080b16;
@@ -45,10 +45,13 @@
     }
 
     .names {
-      font-family: 'Cormorant Garamond', serif; font-weight: 300;
+      font-family: 'Frank Ruhl Libre', 'Cormorant Garamond', serif; font-weight: 300;
       font-size: min(11vw, 17vh);
-      line-height: 1; white-space: nowrap; color: var(--fg);
-      text-shadow: 0 0 80px rgba(201,168,76,0.18);
+      line-height: 1; white-space: nowrap;
+      background: linear-gradient(160deg, #ede4cc 20%, #e2c97e 50%, #c9a84c 65%, #ede4cc 85%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+      filter: drop-shadow(0 0 30px rgba(201,168,76,0.3));
       position: relative; overflow: hidden;
     }
     .names::after {
@@ -72,13 +75,40 @@
 
     .amp {
       font-family: 'Heebo', sans-serif; font-size: 0.45em;
-      color: var(--golds); vertical-align: middle; margin-inline: 0.2em;
+      background: none; -webkit-text-fill-color: var(--golds);
+      vertical-align: middle; margin-inline: 0.2em;
     }
 
-    .name-btn { transition: color 0.25s, text-shadow 0.25s; }
+    .name-btn { transition: filter 0.25s; }
     .name-btn.active {
-      color: var(--gold);
-      text-shadow: 0 0 50px rgba(201,168,76,0.6);
+      filter: drop-shadow(0 0 18px rgba(201,168,76,0.7));
+    }
+
+    /* breathing names */
+    @keyframes breathe {
+      0%,100% { opacity: 0.85; transform: scale(1);    filter: brightness(1);   }
+      50%      { opacity: 1;    transform: scale(1.025); filter: brightness(1.15); }
+    }
+    .names { animation: breathe 4s ease-in-out infinite; }
+    @media (prefers-reduced-motion:reduce) { .names { animation: none; } }
+
+    /* amp spark container */
+    .amp-wrap { position: relative; display: inline-block; vertical-align: middle; }
+    .spark {
+      position: absolute;
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      background: var(--golds);
+      pointer-events: none;
+      opacity: 0;
+    }
+
+    /* נותרו label */
+    .notaru {
+      font-family: 'Cormorant Garamond', serif; font-style: italic;
+      font-size: clamp(1rem, 2.2vw, 1.5rem);
+      color: var(--golds); letter-spacing: 0.12em;
+      margin-top: 2px;
     }
 
     .orndiv {
@@ -191,18 +221,22 @@
     </p>
     <div style="display:flex;align-items:center;direction:rtl;">
       <span id="btn-groom" style="
-        font-family:'Cormorant Garamond',serif;font-weight:300;
-        font-size:clamp(3rem,12vw,9rem);color:#ede4cc;line-height:1;
-        cursor:pointer;transition:color 0.2s,text-shadow 0.2s;
-        text-shadow:0 2px 30px rgba(0,0,0,0.9);user-select:none;
+        font-family:'Frank Ruhl Libre','Cormorant Garamond',serif;font-weight:300;
+        font-size:clamp(3rem,12vw,9rem);line-height:1;
+        background:linear-gradient(160deg,#ede4cc 20%,#e2c97e 50%,#c9a84c 65%,#ede4cc 85%);
+        -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+        cursor:pointer;transition:filter 0.2s;
+        filter:drop-shadow(0 2px 20px rgba(0,0,0,0.9));user-select:none;
       ">שימי</span>
       <span style="font-family:'Heebo',sans-serif;font-size:clamp(1.2rem,4vw,3.5rem);
         color:#c9a84c;margin-inline:0.15em;line-height:1;">&amp;</span>
       <span id="btn-bride" style="
-        font-family:'Cormorant Garamond',serif;font-weight:300;
-        font-size:clamp(3rem,12vw,9rem);color:#ede4cc;line-height:1;
-        cursor:pointer;transition:color 0.2s,text-shadow 0.2s;
-        text-shadow:0 2px 30px rgba(0,0,0,0.9);user-select:none;
+        font-family:'Frank Ruhl Libre','Cormorant Garamond',serif;font-weight:300;
+        font-size:clamp(3rem,12vw,9rem);line-height:1;
+        background:linear-gradient(160deg,#ede4cc 20%,#e2c97e 50%,#c9a84c 65%,#ede4cc 85%);
+        -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+        cursor:pointer;transition:filter 0.2s;
+        filter:drop-shadow(0 2px 20px rgba(0,0,0,0.9));user-select:none;
       ">תמר</span>
     </div>
     <p style="font-family:'Cormorant Garamond',serif;font-style:italic;
@@ -222,9 +256,8 @@
 
 <main class="page">
   <div class="top">
-    <p class="eyebrow">יום החתונה מתקרב</p>
     <h1 class="names">
-      <span id="main-groom" class="name-btn">שימי</span><span class="amp">&amp;</span><span id="main-bride" class="name-btn">תמר</span>
+      <span id="main-groom" class="name-btn">שימי</span><span class="amp-wrap"><span class="amp" id="amp-el">&amp;</span></span><span id="main-bride" class="name-btn">תמר</span>
     </h1>
   </div>
 
@@ -232,6 +265,7 @@
     <div class="orndiv"><div class="dia"></div></div>
     <p class="date-he">כ״ט חשון תשפ״ז</p>
     <p class="date-en">09 · 11 · 2026 &nbsp;|&nbsp; 18:00</p>
+    <p class="notaru">נותרו</p>
   </div>
 
   <div class="middle">
@@ -654,12 +688,10 @@ let beatEnergy = 0; // 0-1, updated by audio engine
 
   [btnGroom,btnBride].forEach(btn=>{
     btn.addEventListener('mouseenter',()=>{
-      btn.style.color='#e2c97e';
-      btn.style.textShadow='0 0 40px rgba(201,168,76,0.7),0 2px 30px rgba(0,0,0,0.9)';
+      btn.style.filter='drop-shadow(0 0 20px rgba(201,168,76,0.8)) drop-shadow(0 2px 20px rgba(0,0,0,0.9))';
     });
     btn.addEventListener('mouseleave',()=>{
-      btn.style.color='#ede4cc';
-      btn.style.textShadow='0 2px 30px rgba(0,0,0,0.9)';
+      btn.style.filter='drop-shadow(0 2px 20px rgba(0,0,0,0.9))';
     });
   });
 
@@ -676,6 +708,42 @@ let beatEnergy = 0; // 0-1, updated by audio engine
   btnGroom.addEventListener('touchstart',()=>dismiss('groom'), {once:true, passive:true});
   btnBride.addEventListener('click',     ()=>dismiss('bride'),  {once:true});
   btnBride.addEventListener('touchstart',()=>dismiss('bride'),  {once:true, passive:true});
+})();
+
+/* ── & spark effect ── */
+(function(){
+  const ampEl = document.getElementById('amp-el');
+  function fireSpark(){
+    if(!ampEl) return;
+    const rect = ampEl.getBoundingClientRect();
+    const cx = rect.left + rect.width/2;
+    const cy = rect.top  + rect.height/2;
+    for(let i=0;i<8;i++){
+      const sp = document.createElement('div');
+      document.body.appendChild(sp);
+      const angle = (i/8)*Math.PI*2 + Math.random()*0.4;
+      const dist  = 25+Math.random()*45;
+      const tx = Math.cos(angle)*dist;
+      const ty = Math.sin(angle)*dist;
+      const size = 3+Math.random()*4;
+      sp.style.cssText = `
+        position:fixed;z-index:10;pointer-events:none;
+        left:${cx}px;top:${cy}px;
+        width:${size}px;height:${size}px;border-radius:50%;
+        background:${Math.random()<0.6?'#e2c97e':'#fff8d0'};
+        transform:translate(-50%,-50%);
+        transition:transform ${0.45+Math.random()*0.3}s ease-out,opacity 0.55s ease-out;
+        opacity:0.95;box-shadow:0 0 4px rgba(226,201,126,0.8);
+      `;
+      requestAnimationFrame(()=>requestAnimationFrame(()=>{
+        sp.style.transform=`translate(calc(-50% + ${tx}px),calc(-50% + ${ty}px)) scale(0.1)`;
+        sp.style.opacity='0';
+      }));
+      setTimeout(()=>sp.remove(), 900);
+    }
+    setTimeout(fireSpark, 3200+Math.random()*2500);
+  }
+  setTimeout(fireSpark, 2500);
 })();
 </script>
 </body>
