@@ -720,9 +720,15 @@ let beatEnergy = 0; // 0-1, updated by audio engine
     initCtx();
     mainGroom.classList.toggle('active', who==='groom');
     mainBride.classList.toggle('active', who==='bride');
-    startPlaylist(who==='groom' ? GROOM_IDS : BRIDE_IDS);
     splash.style.opacity='0';
     setTimeout(()=>splash.style.display='none', 900);
+    // resume AudioContext (may be suspended on iOS/Android even after tap)
+    const startAfterResume = () => startPlaylist(who==='groom' ? GROOM_IDS : BRIDE_IDS);
+    if(audioCtx.state === 'suspended'){
+      audioCtx.resume().then(startAfterResume);
+    } else {
+      startAfterResume();
+    }
   }
 
   btnGroom.addEventListener('click',     ()=>dismiss('groom'), {once:true});
