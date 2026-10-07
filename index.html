@@ -19,7 +19,7 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     html, body { height: 100%; background: var(--bg); color: var(--fg);
-      font-family: 'Heebo', sans-serif; font-weight: 300; overflow: hidden; }
+      font-family: 'Heebo', sans-serif; font-weight: 300; overflow-x: hidden; }
 
     #bg-canvas { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
 
@@ -36,7 +36,7 @@
     /* ── page grid ── */
     .page {
       position: relative; z-index: 1;
-      height: 100dvh;
+      min-height: 100dvh;
       display: flex; flex-direction: column;
       align-items: center; justify-content: center;
       gap: 0;
@@ -253,19 +253,7 @@ function fitText() {
   document.querySelectorAll('.hms-v').forEach(e => e.style.fontSize = (size * 0.52) + 'vw');
   document.querySelectorAll('.colon').forEach(e => e.style.fontSize = (size * 0.44) + 'vw');
 
-  // Step 3: if still overflows vertically, shrink everything uniformly
-  requestAnimationFrame(() => {
-    const contentH = page.scrollHeight;
-    const viewH    = page.clientHeight;
-    if (contentH > viewH) {
-      const ratio = viewH / contentH * 0.96;
-      size *= ratio;
-      nameEl.style.fontSize = size + 'vw';
-      daysEl.style.fontSize = (size * 1.05) + 'vw';
-      document.querySelectorAll('.hms-v').forEach(e => e.style.fontSize = (size * 0.52) + 'vw');
-      document.querySelectorAll('.colon').forEach(e => e.style.fontSize = (size * 0.44) + 'vw');
-    }
-  });
+  // no vertical shrink — let page scroll automatically
 }
 fitText();
 window.addEventListener('resize', fitText);
@@ -334,6 +322,36 @@ window.addEventListener('resize', fitText);
     setTimeout(tick,1000-(Date.now()%1000));
   }
   tick();
+})();
+
+/* ════ AUTO SCROLL ════ */
+(function(){
+  const SPEED = 0.6;   // px per frame (~36px/sec at 60fps)
+  const PAUSE = 120;   // frames to pause at top/bottom (~2 sec)
+  let dir = 1, pause = PAUSE;
+
+  function step() {
+    const maxY = document.body.scrollHeight - window.innerHeight;
+    if (maxY <= 0) { requestAnimationFrame(step); return; }
+
+    if (pause > 0) { pause--; requestAnimationFrame(step); return; }
+
+    window.scrollBy(0, SPEED * dir);
+    const y = window.scrollY;
+
+    if (y >= maxY - 1) { dir = -1; pause = PAUSE; }
+    if (y <= 0)        { dir =  1; pause = PAUSE; }
+
+    requestAnimationFrame(step);
+  }
+
+  // pause scroll while user interacts
+  let userScrolling = false, timeout;
+  window.addEventListener('wheel',      () => { userScrolling=true; clearTimeout(timeout); timeout=setTimeout(()=>userScrolling=false,2000); }, {passive:true});
+  window.addEventListener('touchmove',  () => { userScrolling=true; clearTimeout(timeout); timeout=setTimeout(()=>userScrolling=false,2000); }, {passive:true});
+
+  function loop() { if (!userScrolling) step(); else requestAnimationFrame(loop); }
+  requestAnimationFrame(loop);
 })();
 
 /* ════ MUSIC ════ */
