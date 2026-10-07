@@ -671,14 +671,46 @@ let beatEnergy = 0; // 0-1, updated by audio engine
 
   /* ── main-page name entrance animation (fires once after splash) ── */
   function animateMainNames(){
-    const style = document.createElement('style');
-    style.textContent = `
-      @keyframes nameInTop    { from{opacity:0;transform:translateY(-45px) scale(0.8)} to{opacity:1;transform:none} }
-      @keyframes nameInBottom { from{opacity:0;transform:translateY( 45px) scale(0.8)} to{opacity:1;transform:none} }
-      #main-groom { animation: nameInTop    0.9s cubic-bezier(.2,.8,.3,1.05) both; }
-      #main-bride { animation: nameInBottom 0.9s cubic-bezier(.2,.8,.3,1.05) 0.22s both; }
-    `;
-    document.head.appendChild(style);
+    const GRAD = 'linear-gradient(160deg,#f5eedd 10%,#f0d98a 40%,#c9a84c 60%,#f0d98a 75%,#f5eedd 95%)';
+    const W = window.innerWidth;
+    let idx = 0;
+
+    [document.getElementById('main-groom'), document.getElementById('main-bride')].forEach((el, ei) => {
+      if(!el) return;
+      const text = el.textContent;
+      el.textContent = '';
+
+      [...text].forEach((ch, i) => {
+        const sp = document.createElement('span');
+        sp.textContent = ch;
+        /* fly in from random side of screen */
+        const fromLeft = Math.random() > 0.5;
+        const tx = fromLeft ? -(Math.random()*0.35 + 0.55)*W : (Math.random()*0.35 + 0.55)*W;
+        const ty = (Math.random() - 0.5) * 90;
+        const rot = (Math.random() - 0.5) * 28;
+        sp.style.cssText = `
+          display:inline-block;
+          background:${GRAD};
+          -webkit-background-clip:text;background-clip:text;
+          -webkit-text-fill-color:transparent;
+          opacity:0;
+          transform:translateX(${tx}px) translateY(${ty}px) rotate(${rot}deg) scale(0.5);
+        `;
+        sp.dataset.li = idx++;
+        el.appendChild(sp);
+      });
+    });
+
+    /* force reflow so initial state is painted, then add transitions */
+    document.body.offsetHeight;
+    setTimeout(() => {
+      document.querySelectorAll('#main-groom span[data-li], #main-bride span[data-li]').forEach(sp => {
+        const d = +sp.dataset.li * 0.08;
+        sp.style.transition = `transform 0.9s cubic-bezier(.2,.8,.2,1.05) ${d}s, opacity 0.55s ease ${d}s`;
+        sp.style.opacity    = '1';
+        sp.style.transform  = 'translateX(0) translateY(0) rotate(0deg) scale(1)';
+      });
+    }, 30);
   }
 
   /* ── splash UI ── */
