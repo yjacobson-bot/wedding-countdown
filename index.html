@@ -655,6 +655,42 @@ let beatEnergy = 0; // 0-1, updated by audio engine
     if(who) setInterval(()=>savePos(who), 5000);
   }
 
+  /* ── splash letter entrance animation ── */
+  (function(){
+    const DIRS = [
+      'translate(-60px,-60px) rotate(-15deg)',
+      'translate(0px,-70px)   rotate(5deg)',
+      'translate(60px,-60px)  rotate(15deg)',
+      'translate(70px,0px)    rotate(-8deg)',
+      'translate(60px,60px)   rotate(12deg)',
+      'translate(0px,70px)    rotate(-5deg)',
+      'translate(-60px,60px)  rotate(-12deg)',
+      'translate(-70px,0px)   rotate(8deg)',
+    ];
+    function animateLetters(el){
+      const text = el.textContent;
+      el.textContent = '';
+      [...text].forEach((ch, i) => {
+        const sp = document.createElement('span');
+        sp.textContent = ch;
+        sp.style.cssText = `display:inline-block;opacity:0;transform:${DIRS[i % DIRS.length]};` +
+          `transition:transform 0.55s cubic-bezier(.2,.8,.3,1) ${i*0.1}s,` +
+          `opacity 0.4s ease ${i*0.1}s;`;
+        el.appendChild(sp);
+      });
+      requestAnimationFrame(()=>requestAnimationFrame(()=>{
+        el.querySelectorAll('span').forEach(sp=>{
+          sp.style.opacity='1';
+          sp.style.transform='translate(0,0) rotate(0deg)';
+        });
+      }));
+    }
+    setTimeout(()=>{
+      animateLetters(document.getElementById('btn-groom'));
+      animateLetters(document.getElementById('btn-bride'));
+    }, 200);
+  })();
+
   /* ── splash UI ── */
   const splash    = document.getElementById('splash');
   const btnGroom  = document.getElementById('btn-groom');
