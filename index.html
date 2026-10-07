@@ -587,19 +587,15 @@ let beatEnergy = 0; // 0-1, updated by audio engine
     ornLeft.style.opacity  = 0.4 + smoothBeat*0.6;
     ornRight.style.opacity = 0.4 + smoothBeat*0.6;
 
-    /* names — scale gently + glow flash on beat */
+    /* names — brightness pulse on beat (no rectangle artifact) */
     if(namesEl){
-      const ns = 1 + smoothBeat*0.03 + beatFlash*0.04;
-      namesEl.style.transform = `scale(${ns})`;
-      // boost glow on active name
-      const glowSize   = 18  + beatFlash*60;
-      const glowAlpha  = 0.7 + beatFlash*0.3;
-      const glowSpread = 30  + smoothBeat*50;
-      const glow = `drop-shadow(0 0 ${glowSize}px rgba(201,168,76,${glowAlpha}))
-                    drop-shadow(0 0 ${glowSpread}px rgba(201,168,76,${0.4+smoothBeat*0.3}))
-                    drop-shadow(0 0 ${60+beatFlash*80}px rgba(201,168,76,${0.2+beatFlash*0.35}))`;
-      if(groomEl?.classList.contains('active'))  groomEl.style.filter = glow;
-      if(brideEl?.classList.contains('active'))   brideEl.style.filter = glow;
+      const brightness = 1 + smoothBeat*0.35 + beatFlash*1.1;
+      const activeEl = groomEl?.classList.contains('active') ? groomEl
+                     : brideEl?.classList.contains('active') ? brideEl : null;
+      if(activeEl) activeEl.style.filter =
+        `drop-shadow(0 0 ${12+beatFlash*55}px rgba(201,168,76,${0.7+beatFlash*0.3}))
+         drop-shadow(0 0 ${28+smoothBeat*40}px rgba(201,168,76,${0.35+smoothBeat*0.3}))
+         brightness(${brightness})`;
     }
 
     requestAnimationFrame(pulse);
@@ -687,8 +683,18 @@ let beatEnergy = 0; // 0-1, updated by audio engine
     }
 
     /* fade in next */
-    next.audio.currentTime = startAt || 0;
-    next.audio.play().catch(()=>{});
+    const doPlay = () => {
+      if(startAt && startAt > 0){
+        next.audio.currentTime = startAt;
+      }
+      next.audio.play().catch(()=>{});
+    };
+    if(next.audio.readyState >= 1){
+      doPlay();
+    } else {
+      next.audio.addEventListener('loadedmetadata', doPlay, {once:true});
+      next.audio.load();
+    }
     if(next.gain){
       const g = next.gain.gain;
       g.cancelScheduledValues(now);
