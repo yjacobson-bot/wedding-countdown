@@ -162,12 +162,7 @@
     @media (prefers-reduced-motion:reduce) { .names::after { animation: none; } }
 
     .name-btn {
-      cursor: pointer;
       transition: color 0.25s, text-shadow 0.25s;
-    }
-    .name-btn:hover {
-      color: var(--golds);
-      text-shadow: 0 0 40px rgba(201,168,76,0.5);
     }
     .name-btn.active {
       color: var(--gold);
@@ -478,9 +473,7 @@
   btnBride.addEventListener('click',     () => dismiss('bride'),  {once:true});
   btnBride.addEventListener('touchstart',() => dismiss('bride'),  {once:true, passive:true});
 
-  /* main page name taps — switch song anytime */
-  mainGroom.addEventListener('click', () => setActive('groom'));
-  mainBride.addEventListener('click', () => setActive('bride'));
+  /* main page names — display only, no switching */
 })();
 </script>
 </body>
