@@ -777,7 +777,7 @@ let songEnergy = 0; // 0-1, slow-moving average — reflects song tempo/mood
   const d21btn = document.getElementById('d21-close');
 
   const target = new Date('2026-11-09T18:00:00+02:00').getTime();
-  const daysLeft = Math.floor((target - Date.now()) / 86400000);
+  const daysLeft = 21; // DEMO — remove before deploy
 
   if(daysLeft === 30){
     setTimeout(()=>{ d30.classList.add('open'); }, 800);
