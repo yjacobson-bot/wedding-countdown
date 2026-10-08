@@ -303,6 +303,56 @@
       to   { transform: translateY(-6px) scale(1.04); }
     }
 
+    /* ── day-31 special ── */
+    #day31-special {
+      display: none;
+      position: fixed; inset: 0; z-index: 100;
+      background: rgba(8,11,22,0.96);
+      align-items: center; justify-content: center;
+      flex-direction: column; gap: 2.5vh;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+    #day31-special.open { display: flex; }
+    .d31-num {
+      font-family: 'Cormorant Garamond', serif; font-weight: 300;
+      font-size: min(22vw, 28vh);
+      color: var(--golds);
+      text-shadow: 0 0 100px rgba(201,168,76,0.5), 0 0 40px rgba(201,168,76,0.3);
+      line-height: 0.9;
+      animation: d31pulse 3s ease-in-out infinite;
+    }
+    .d31-divider {
+      width: min(260px, 45vw); height: 1px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    }
+    .d31-main {
+      font-family: 'Frank Ruhl Libre', serif; font-weight: 300;
+      font-size: clamp(1.2rem, 4vw, 2.6rem);
+      color: var(--fg);
+      letter-spacing: 0.08em;
+      text-align: center;
+      line-height: 1.5;
+      max-width: min(560px, 86vw);
+    }
+    .d31-main em {
+      font-style: italic;
+      font-family: 'Cormorant Garamond', serif;
+      color: var(--golds);
+      font-size: 1.12em;
+    }
+    .d31-close {
+      position: absolute; top: 20px; left: 20px;
+      background: rgba(201,168,76,0.1); border: 1px solid rgba(201,168,76,0.28);
+      color: var(--gold); font-size: 14px; padding: 6px 16px; border-radius: 20px;
+      cursor: pointer; font-family: 'Heebo', sans-serif;
+    }
+    .d31-close:hover { background: rgba(201,168,76,0.2); }
+    @keyframes d31pulse {
+      0%,100% { text-shadow: 0 0 100px rgba(201,168,76,0.5), 0 0 40px rgba(201,168,76,0.3); }
+      50%      { text-shadow: 0 0 160px rgba(201,168,76,0.8), 0 0 70px rgba(201,168,76,0.5); }
+    }
+
     /* ── day-21 special ── */
     #day21-special {
       display: none;
@@ -527,6 +577,15 @@
   <div id="day-badge"></div>
   <p class="footer">בשעה טובה ומוצלחת</p>
 </main>
+
+<!-- day-31 special overlay -->
+<div id="day31-special">
+  <button class="d31-close" id="d31-close">סגור</button>
+  <div class="d31-num">31</div>
+  <div class="d31-divider"></div>
+  <div class="d31-main">עוד 31 ימים —<br><em>נגמר התירוץ, אני מאורס/ת...</em></div>
+  <div class="d31-divider"></div>
+</div>
 
 <!-- day-21 special overlay -->
 <div id="day21-special">
@@ -785,6 +844,8 @@ let songEnergy = 0; // 0-1, slow-moving average — reflects song tempo/mood
   const msgEl  = document.getElementById('daily-msg');
   const d30    = document.getElementById('day30-special');
   const d30btn = document.getElementById('d30-close');
+  const d31    = document.getElementById('day31-special');
+  const d31btn = document.getElementById('d31-close');
   const d21    = document.getElementById('day21-special');
   const d21btn = document.getElementById('d21-close');
 
@@ -799,7 +860,11 @@ let songEnergy = 0; // 0-1, slow-moving average — reflects song tempo/mood
     setTimeout(()=>{ badge.classList.add('visible'); }, 100);
   }
 
-  if(daysLeft === 30){
+  if(daysLeft === 31){
+    showBadge('עוד 31 — נגמר התירוץ...');
+    setTimeout(()=>{ d31.classList.add('open'); }, 800);
+    d31btn.addEventListener('click', ()=>{ d31.classList.remove('open'); });
+  } else if(daysLeft === 30){
     showBadge('נה, נה, נה — עוד 30 יום!');
     setTimeout(()=>{ d30.classList.add('open'); }, 800);
     d30btn.addEventListener('click', ()=>{ d30.classList.remove('open'); });
