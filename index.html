@@ -1684,28 +1684,41 @@ let songEnergy = 0; // 0-1, slow-moving average — reflects song tempo/mood
   setTimeout(fire, 1800); // first fire after entrance animation
 })();
 
-/* ── service worker + update toast ── */
-if('serviceWorker' in navigator){
-  navigator.serviceWorker.register('/sw.js').then(reg => {
-    function onUpdateFound(){
-      const sw = reg.installing;
-      sw.addEventListener('statechange', () => {
-        if(sw.state === 'installed' && navigator.serviceWorker.controller){
-          const toast  = document.getElementById('update-toast');
-          const reload = document.getElementById('update-reload');
-          toast.classList.add('show');
-          reload.addEventListener('click', () => {
-            sw.postMessage({ type: 'SKIP_WAITING' });
-            window.location.reload();
-          });
-        }
-      });
-    }
-    reg.addEventListener('updatefound', onUpdateFound);
-    // check for updates every 60 seconds
-    setInterval(() => reg.update(), 60000);
-  });
-}
+/* ── version check via GitHub API ── */
+(function(){
+  const GH_REPO = 'yjacobson-bot/wedding-countdown';
+  let currentSha = null;
+
+  function showUpdateToast(){
+    const toast  = document.getElementById('update-toast');
+    const reload = document.getElementById('update-reload');
+    if(!toast || toast.classList.contains('show')) return;
+    toast.classList.add('show');
+    reload.addEventListener('click', () => location.reload());
+  }
+
+  async function checkVersion(){
+    try {
+      const r = await fetch(
+        `https://api.github.com/repos/${GH_REPO}/commits/main`,
+        { cache:'no-store', headers:{ Accept:'application/vnd.github.v3+json' } }
+      );
+      if(!r.ok) return;
+      const sha = (await r.json()).sha.slice(0,10);
+      if(!sha) return;
+      if(currentSha === null){ currentSha = sha; return; }
+      if(sha !== currentSha){ currentSha = sha; showUpdateToast(); }
+    } catch{}
+  }
+
+  checkVersion();
+  setInterval(checkVersion, 60000);
+
+  // keep SW for offline support only
+  if('serviceWorker' in navigator){
+    navigator.serviceWorker.register('/sw.js').catch(()=>{});
+  }
+})();
 </script>
 </body>
 </html>
