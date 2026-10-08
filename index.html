@@ -243,6 +243,7 @@
     #btn-music  { bottom: 20px; left: 20px;  bottom: calc(20px + env(safe-area-inset-bottom,0px)); }
     #btn-invite { bottom: 20px; right: 20px; bottom: calc(20px + env(safe-area-inset-bottom,0px)); }
     #btn-theme  { bottom: calc(64px + env(safe-area-inset-bottom,0px)); left: 20px; }
+    #btn-fs     { bottom: calc(64px + env(safe-area-inset-bottom,0px)); right: 20px; }
 
     /* theme palette panel */
     #theme-panel {
@@ -583,6 +584,7 @@
 <button id="btn-music"  class="corner-btn" aria-label="עצור/נגן מוזיקה">♪</button>
 <button id="btn-invite" class="corner-btn" aria-label="הצג הזמנה">✉</button>
 <button id="btn-theme"  class="corner-btn" aria-label="שנה רקע">🎨</button>
+<button id="btn-fs"     class="corner-btn" aria-label="מסך מלא">⛶</button>
 
 <!-- theme palette panel -->
 <div id="theme-panel">
@@ -1682,6 +1684,17 @@ let songEnergy = 0; // 0-1, slow-moving average — reflects song tempo/mood
   }
 
   setTimeout(fire, 1800); // first fire after entrance animation
+})();
+
+/* ── fullscreen button ── */
+(function(){
+  const btn = document.getElementById('btn-fs');
+  function update(){ btn.textContent = document.fullscreenElement ? '✕' : '⛶'; }
+  btn.addEventListener('click', () => {
+    if(!document.fullscreenElement) document.documentElement.requestFullscreen().catch(()=>{});
+    else document.exitFullscreen();
+  });
+  document.addEventListener('fullscreenchange', update);
 })();
 
 /* ── version check via GitHub API ── */
