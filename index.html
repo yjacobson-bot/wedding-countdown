@@ -290,6 +290,76 @@
       from { transform: translateY(0) scale(1); }
       to   { transform: translateY(-6px) scale(1.04); }
     }
+
+    /* ── day-21 special ── */
+    #day21-special {
+      display: none;
+      position: fixed; inset: 0; z-index: 100;
+      background: rgba(8,11,22,0.96);
+      align-items: center; justify-content: center;
+      flex-direction: column; gap: 2.5vh;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+    #day21-special.open { display: flex; }
+    .d21-num {
+      font-family: 'Cormorant Garamond', serif; font-weight: 300;
+      font-size: min(22vw, 30vh);
+      color: transparent;
+      -webkit-text-stroke: 1px rgba(201,168,76,0.55);
+      line-height: 0.9;
+      position: relative;
+      animation: d21float 4s ease-in-out infinite;
+    }
+    .d21-num::after {
+      content: '21';
+      position: absolute; inset: 0;
+      color: var(--golds);
+      -webkit-text-stroke: 0;
+      clip-path: inset(50% 0 0 0);
+      opacity: 0.45;
+    }
+    .d21-main {
+      font-family: 'Frank Ruhl Libre', serif; font-weight: 300;
+      font-size: clamp(1.4rem, 5vw, 3.2rem);
+      color: var(--fg);
+      letter-spacing: 0.18em;
+      text-align: center;
+      animation: d21fadein 1.4s ease both;
+    }
+    .d21-main em {
+      font-style: italic;
+      font-family: 'Cormorant Garamond', serif;
+      color: var(--golds);
+      font-size: 1.15em;
+      font-weight: 300;
+    }
+    .d21-divider {
+      width: min(220px, 40vw); height: 1px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+      animation: d21fadein 2s ease both;
+    }
+    .d21-sub {
+      font-family: 'Heebo', sans-serif; font-weight: 300;
+      font-size: clamp(0.75rem, 1.8vw, 1.05rem);
+      color: var(--muted); letter-spacing: 0.1em;
+      animation: d21fadein 2.4s ease both;
+    }
+    .d21-close {
+      position: absolute; top: 20px; left: 20px;
+      background: rgba(201,168,76,0.1); border: 1px solid rgba(201,168,76,0.28);
+      color: var(--gold); font-size: 14px; padding: 6px 16px; border-radius: 20px;
+      cursor: pointer; font-family: 'Heebo', sans-serif;
+    }
+    .d21-close:hover { background: rgba(201,168,76,0.2); }
+    @keyframes d21float {
+      0%,100% { transform: translateY(0); }
+      50%      { transform: translateY(-12px); }
+    }
+    @keyframes d21fadein {
+      from { opacity: 0; transform: translateY(14px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
   </style>
 </head>
 <body>
@@ -445,6 +515,16 @@
   <p class="footer">בשעה טובה ומוצלחת</p>
   <div id="daily-msg"></div>
 </main>
+
+<!-- day-21 special overlay -->
+<div id="day21-special">
+  <button class="d21-close" id="d21-close">סגור</button>
+  <div class="d21-num">21</div>
+  <div class="d21-divider"></div>
+  <div class="d21-main">עוד <em>21</em> — בבית אחד</div>
+  <div class="d21-divider"></div>
+  <div class="d21-sub">שלושה שבועות עוד. כל שקיעה מקרבת אתכם.</div>
+</div>
 
 <!-- day-30 special overlay -->
 <div id="day30-special">
@@ -730,21 +810,20 @@ let songEnergy = 0; // 0-1, slow-moving average — reflects song tempo/mood
   const msgEl  = document.getElementById('daily-msg');
   const d30    = document.getElementById('day30-special');
   const d30btn = document.getElementById('d30-close');
+  const d21    = document.getElementById('day21-special');
+  const d21btn = document.getElementById('d21-close');
 
   const target = new Date('2026-11-09T18:00:00+02:00').getTime();
   const daysLeft = Math.floor((target - Date.now()) / 86400000);
 
   if(daysLeft === 30){
-    // show special overlay once per day (localStorage guard)
-    const key = 'day30shown';
-    try {
-      if(!localStorage.getItem(key)){
-        localStorage.setItem(key, '1');
-        setTimeout(()=>{ d30.classList.add('open'); }, 800);
-      }
-    } catch(e){ setTimeout(()=>{ d30.classList.add('open'); }, 800); }
+    setTimeout(()=>{ d30.classList.add('open'); }, 800);
     d30btn.addEventListener('click', ()=>{ d30.classList.remove('open'); });
     msgEl.textContent = "חודש שלם של ציפייה — ואת שווה כל רגע!";
+  } else if(daysLeft === 21){
+    setTimeout(()=>{ d21.classList.add('open'); }, 800);
+    d21btn.addEventListener('click', ()=>{ d21.classList.remove('open'); });
+    msgEl.textContent = MSGS[21];
   } else if(MSGS[daysLeft] !== undefined){
     msgEl.textContent = MSGS[daysLeft];
   }
