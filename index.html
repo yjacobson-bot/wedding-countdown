@@ -1710,9 +1710,10 @@ let songEnergy = 0; // 0-1, slow-moving average — reflects song tempo/mood
   document.addEventListener('fullscreenchange', update);
 })();
 
-/* ── version check via ETag ── */
+/* ── version check via GitHub API SHA ── */
 (function(){
-  const LS_KEY = 'wc-etag';
+  const LS_KEY  = 'wc-sha';
+  const GH_REPO = 'yjacobson-bot/wedding-countdown';
 
   function showUpdateToast(){
     const toast  = document.getElementById('update-toast');
@@ -1727,13 +1728,16 @@ let songEnergy = 0; // 0-1, slow-moving average — reflects song tempo/mood
 
   async function checkVersion(){
     try {
-      const r = await fetch('/index.html?_=' + Date.now(), { method:'HEAD', cache:'no-store' });
+      const r = await fetch(
+        `https://api.github.com/repos/${GH_REPO}/commits/main`,
+        { cache:'no-store', headers:{ Accept:'application/vnd.github.v3+json' } }
+      );
       if(!r.ok) return;
-      const etag = r.headers.get('etag') || r.headers.get('last-modified');
-      if(!etag) return;
+      const sha = (await r.json()).sha.slice(0,10);
+      if(!sha) return;
       const saved = localStorage.getItem(LS_KEY);
-      if(!saved){ localStorage.setItem(LS_KEY, etag); return; }
-      if(etag !== saved){ localStorage.setItem(LS_KEY, etag); showUpdateToast(); }
+      if(!saved){ localStorage.setItem(LS_KEY, sha); return; }
+      if(sha !== saved){ localStorage.setItem(LS_KEY, sha); showUpdateToast(); }
     } catch{}
   }
 
