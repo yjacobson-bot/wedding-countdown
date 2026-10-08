@@ -185,6 +185,18 @@
       letter-spacing: 0.22em; text-transform: uppercase; color: var(--goldd);
     }
 
+    #day-badge {
+      display: none;
+      font-family: 'Cormorant Garamond', serif; font-style: italic; font-weight: 300;
+      font-size: clamp(1rem, 2.8vw, 1.6rem);
+      color: var(--gold);
+      letter-spacing: 0.1em;
+      opacity: 0;
+      transition: opacity 1.4s ease;
+      text-shadow: 0 0 30px rgba(201,168,76,0.35);
+    }
+    #day-badge.visible { opacity: 1; }
+
     /* ── corner buttons ── */
     .corner-btn {
       position: fixed; z-index: 50;
@@ -512,6 +524,7 @@
     <p class="done" id="done">🥂 מזל טוב לשימי ותמר! 🥂</p>
   </div>
 
+  <div id="day-badge"></div>
   <p class="footer">בשעה טובה ומוצלחת</p>
 </main>
 
@@ -522,7 +535,6 @@
   <div class="d21-divider"></div>
   <div class="d21-main">עוד <em>21</em> — בבית אחד</div>
   <div class="d21-divider"></div>
-  <div class="d21-sub">שלושה שבועות עוד. כל שקיעה מקרבת אתכם.</div>
 </div>
 
 <!-- day-30 special overlay -->
@@ -779,10 +791,20 @@ let songEnergy = 0; // 0-1, slow-moving average — reflects song tempo/mood
   const target = new Date('2026-11-09T18:00:00+02:00').getTime();
   const daysLeft = 21; // DEMO — remove before deploy
 
+  const badge = document.getElementById('day-badge');
+
+  function showBadge(text){
+    badge.textContent = text;
+    badge.style.display = 'block';
+    setTimeout(()=>{ badge.classList.add('visible'); }, 100);
+  }
+
   if(daysLeft === 30){
+    showBadge('נה, נה, נה — עוד 30 יום!');
     setTimeout(()=>{ d30.classList.add('open'); }, 800);
     d30btn.addEventListener('click', ()=>{ d30.classList.remove('open'); });
   } else if(daysLeft === 21){
+    showBadge('עוד 21 — בבית אחד');
     setTimeout(()=>{ d21.classList.add('open'); }, 800);
     d21btn.addEventListener('click', ()=>{ d21.classList.remove('open'); });
   }
