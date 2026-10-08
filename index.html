@@ -385,7 +385,8 @@
 /* ══════════════════════════════════════════
    SHARED BEAT STATE
 ══════════════════════════════════════════ */
-let beatEnergy = 0; // 0-1, updated by audio engine
+let beatEnergy = 0; // 0-1, instant peak — updated by audio engine
+let songEnergy = 0; // 0-1, slow-moving average — reflects song tempo/mood
 
 /* ══════════════════════════════════════════
    CANVAS — stars, meteors, falling ornaments
@@ -505,7 +506,10 @@ let beatEnergy = 0; // 0-1, updated by audio engine
     ctx.clearRect(0,0,W,H);
     t += 0.011;
 
-    const beat = beatEnergy; // 0-1
+    const beat = beatEnergy; // 0-1, instant
+    const song = songEnergy; // 0-1, slow average — slow song=low, fast song=high
+    // base speed multiplier: 0.25 (very slow song) → 1.2 (energetic song)
+    const baseSpd = 0.25 + song * 0.95;
 
     /* orbs */
     for(const o of orbs){
@@ -520,9 +524,9 @@ let beatEnergy = 0; // 0-1, updated by audio engine
       ctx.fillStyle=g; ctx.fill();
     }
 
-    /* stars — pulse strongly on beat */
+    /* stars — twinkle speed and pulse scale with song energy */
     for(const s of stars){
-      const twinkle = Math.sin(t*s.speed+s.phase)*0.18;
+      const twinkle = Math.sin(t*s.speed*baseSpd+s.phase)*0.18;
       const a = Math.min(1, s.base + twinkle + beat*0.55);
       const r = s.r * (1 + beat*1.1);
       ctx.beginPath(); ctx.arc(s.x*W, s.y*H, r, 0, Math.PI*2);
@@ -558,11 +562,11 @@ let beatEnergy = 0; // 0-1, updated by audio engine
       if(m.life<=0){ m.active=false; m.timer=Math.random()*180+80; }
     }
 
-    /* falling ornaments — beat-sync: size, alpha, rotation burst */
+    /* falling ornaments — speed driven by song energy + beat bursts */
     for(const o of orns){
-      o.y += o.speed * (1 + beat*1.8);
-      o.x += Math.sin(t*o.driftF+o.driftP)*o.drift;
-      o.rot += o.rotV * (1 + beat*3.5); // spin faster on beat
+      o.y += o.speed * baseSpd * (1 + beat*1.8);
+      o.x += Math.sin(t*o.driftF*baseSpd+o.driftP)*o.drift;
+      o.rot += o.rotV * baseSpd * (1 + beat*3.5);
       const edgeFade = Math.min(o.y*8, (1-o.y)*8, 1);
       const a = Math.min(1, o.alpha * edgeFade * (1 + beat*1.2));
       const beatSize = o.size * (1 + beat*0.9); // pulse size
@@ -668,13 +672,14 @@ let beatEnergy = 0; // 0-1, updated by audio engine
          drop-shadow(0 0 ${25+smoothBeat*35}px rgba(201,168,76,${0.3+smoothBeat*0.3}))
          brightness(${br})`;
 
-      /* wave: each letter bounces with phase offset */
+      /* wave: each letter bounces — speed and amp follow song energy */
       const spans = activeEl.querySelectorAll('span[data-li]');
-      const amp = smoothBeat * 10 + beatFlash * 18; // px, scales with beat
+      const waveSpeed = 0.8 + songEnergy * 2.2; // slow song → slow dreamy wave
+      const amp = smoothBeat * 10 + beatFlash * 18;
       spans.forEach(sp => {
         const i = +sp.dataset.li;
-        const phase = i * 0.55; // offset per letter
-        const dy = Math.sin(pulseT * 2.8 + phase) * amp;
+        const phase = i * 0.55;
+        const dy = Math.sin(pulseT * waveSpeed + phase) * amp;
         sp.style.transform = `translateY(${dy.toFixed(1)}px)`;
       });
     } else {
@@ -735,6 +740,7 @@ let beatEnergy = 0; // 0-1, updated by audio engine
         for(let i=0;i<16;i++) if(freqData[i]>peak) peak=freqData[i];
         // amplify: map 0-255 → 0-1 then boost so typical beat ~0.4-0.8
         beatEnergy = Math.min(1, (peak/255) * 2.2);
+        songEnergy += (beatEnergy - songEnergy) * 0.004; // ~2-3 sec response
       }
       setTimeout(beatLoop, 20);
     })();
