@@ -672,16 +672,6 @@ let songEnergy = 0; // 0-1, slow-moving average — reflects song tempo/mood
          drop-shadow(0 0 ${25+smoothBeat*35}px rgba(201,168,76,${0.3+smoothBeat*0.3}))
          brightness(${br})`;
 
-      /* wave: each letter bounces — speed and amp follow song energy */
-      const spans = activeEl.querySelectorAll('span[data-li]');
-      const waveSpeed = 0.8 + songEnergy * 2.2; // slow song → slow dreamy wave
-      const amp = smoothBeat * 10 + beatFlash * 18;
-      spans.forEach(sp => {
-        const i = +sp.dataset.li;
-        const phase = i * 0.55;
-        const dy = Math.sin(pulseT * waveSpeed + phase) * amp;
-        sp.style.transform = `translateY(${dy.toFixed(1)}px)`;
-      });
     } else {
       /* when no side active yet — reset any residual transforms */
       [groomEl, brideEl].forEach(el => {
