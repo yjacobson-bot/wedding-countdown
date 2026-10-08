@@ -226,6 +226,70 @@
       display: flex; align-items: center; justify-content: center;
     }
     #inv-close:hover { background: rgba(201,168,76,0.3); }
+
+    /* ── daily message ── */
+    #daily-msg {
+      font-family: 'Frank Ruhl Libre', serif; font-weight: 300;
+      font-size: clamp(0.75rem, 1.6vw, 1rem);
+      color: var(--muted);
+      letter-spacing: 0.04em;
+      line-height: 1.6;
+      max-width: min(480px, 88vw);
+      text-align: center;
+      opacity: 0;
+      transition: opacity 1.2s ease;
+      padding: 2px 0;
+    }
+    #daily-msg.visible { opacity: 1; }
+
+    /* ── day-30 special ── */
+    #day30-special {
+      display: none;
+      position: fixed; inset: 0; z-index: 100;
+      background: rgba(8,11,22,0.94);
+      align-items: center; justify-content: center;
+      flex-direction: column; gap: 1.8vh;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+    #day30-special.open { display: flex; }
+    .d30-title {
+      font-family: 'Cormorant Garamond', serif; font-weight: 300; font-style: italic;
+      font-size: min(14vw, 18vh);
+      color: var(--golds);
+      text-shadow: 0 0 80px rgba(201,168,76,0.6), 0 0 30px rgba(201,168,76,0.4);
+      line-height: 0.95;
+      animation: d30pulse 2.5s ease-in-out infinite;
+    }
+    .d30-sub {
+      font-family: 'Frank Ruhl Libre', serif; font-weight: 400;
+      font-size: clamp(1.4rem, 4vw, 2.8rem);
+      color: var(--fg);
+      letter-spacing: 0.25em;
+    }
+    .d30-nana {
+      font-family: 'Cormorant Garamond', serif; font-style: italic;
+      font-size: clamp(1.2rem, 3.5vw, 2.4rem);
+      color: var(--gold);
+      letter-spacing: 0.18em;
+      opacity: 0.9;
+      animation: d30nana 1.6s ease-in-out infinite alternate;
+    }
+    .d30-close {
+      position: absolute; top: 20px; left: 20px;
+      background: rgba(201,168,76,0.12); border: 1px solid rgba(201,168,76,0.3);
+      color: var(--gold); font-size: 14px; padding: 6px 16px; border-radius: 20px;
+      cursor: pointer; font-family: 'Heebo', sans-serif;
+    }
+    .d30-close:hover { background: rgba(201,168,76,0.22); }
+    @keyframes d30pulse {
+      0%,100% { text-shadow: 0 0 80px rgba(201,168,76,0.6), 0 0 30px rgba(201,168,76,0.4); }
+      50%      { text-shadow: 0 0 140px rgba(201,168,76,0.9), 0 0 60px rgba(201,168,76,0.6); }
+    }
+    @keyframes d30nana {
+      from { transform: translateY(0) scale(1); }
+      to   { transform: translateY(-6px) scale(1.04); }
+    }
   </style>
 </head>
 <body>
@@ -379,7 +443,16 @@
   </div>
 
   <p class="footer">בשעה טובה ומוצלחת</p>
+  <div id="daily-msg"></div>
 </main>
+
+<!-- day-30 special overlay -->
+<div id="day30-special">
+  <button class="d30-close" id="d30-close">סגור</button>
+  <div class="d30-title">30</div>
+  <div class="d30-sub">עוד שלושים יום</div>
+  <div class="d30-nana">נה, נה, נה!</div>
+</div>
 
 <script>
 /* ══════════════════════════════════════════
@@ -612,6 +685,73 @@ let songEnergy = 0; // 0-1, slow-moving average — reflects song tempo/mood
     setTimeout(tick, 1000-(Date.now()%1000));
   }
   tick();
+})();
+
+/* ══════════════════════════════════════════
+   DAILY MESSAGE
+══════════════════════════════════════════ */
+(function(){
+  const MSGS = {
+    32: "ל״ב — לֵב. היום הלב שלנו מלא בך.",
+    31: "ל״א ימים. בכל בוקר שמחה חדשה.",
+    30: null, // special overlay
+    29: "עוד כ״ט ימים. ה׳ ימלא כל משאלות לבך.",
+    28: "כ״ח — כֹּחַ. תהיה לכם חוזק לכל מה שיבוא.",
+    27: "כ״ז ימים. הבית שתבנו יהיה מלא אהבה ותורה.",
+    26: "כ״ו — שם ה׳. ה׳ שם בכם את האהבה הזאת.",
+    25: "כ״ה ימים. דברו זה לזה בחיבה — תמיד.",
+    24: "כ״ד ימים. שמחת החתונה כבר מרגישים!",
+    23: "כ״ג — ״ה׳ רֹעִי לֹא אֶחְסָר.״ לא תחסרו דבר.",
+    22: "כ״ב — כמספר אותיות התורה. הכל בנוי בשבילכם.",
+    21: "שלושה שבועות עוד. כל שקיעה מקרבת אתכם.",
+    20: "כ׳ ימים. עצרו רגע ותודו לה׳ על הטוב.",
+    19: "י״ט ימים. מה שמח שתהיו ביחד לנצח.",
+    18: "י״ח — חַי. חיים חדשים ושמחים לפניכם.",
+    17: "י״ז — טוֹב. ״וַיַּרְא אֱלֹהִים כִּי טוֹב״ — וגם הוא שמח בכם.",
+    16: "שֶׁלְהֶבֶת יָהּ — אהבה שלא תכבה לעולם.",
+    15: "ט״ו ימים. רק שבועיים ועוד קצת — ואחר כך לנצח.",
+    14: "שבועיים עוד ותאחזו יד ביד — כל ימי חייכם.",
+    13: "אחד = אהבה. אותו מספר. מה יפה.",
+    12: "י״ב ימים. כל ישראל שמח בשמחתכם.",
+    11: "עוד י״א שקיעות — ואחריהן עולם חדש.",
+    10: "עשרה ימים. ההתרגשות כבר מורגשת בכל מקום.",
+     9: "תשעה ימים. כמו תשעה חודשים — ממתינים ליום הגדול.",
+     8: "שמונה — מעל הטבע. האהבה שלכם גדולה מהכל.",
+     7: "שבעה ימים — שבוע אחד. שבע ברכות ממתינות!",
+     6: "שישה ימים. ״לֹא טוֹב הֱיוֹת הָאָדָם לְבַדּוֹ״ — עוד מעט לא תהיו לבד.",
+     5: "חמישה ימים. הבית שתבנו יהיה ספוג בתורה ואהבה.",
+     4: "ארבעה ימים. שרה, רבקה, רחל ולאה — ילכו לפניך תמר.",
+     3: "שלושה ימים. אברהם, יצחק ויעקב בנו בתים — עכשיו תורכם.",
+     2: "עוד יומיים — ומתחילה פרשת חיים חדשה.",
+     1: "מחר! ״שְׁמַע יִשְׂרָאֵל ה׳ אֶחָד״ — מחר הכל מתאחד לאחד.",
+     0: "״זֶה הַיּוֹם עָשָׂה ה׳ — נָגִילָה וְנִשְׂמְחָה בוֹ.״ מזל טוב שימי ותמר!"
+  };
+
+  const msgEl  = document.getElementById('daily-msg');
+  const d30    = document.getElementById('day30-special');
+  const d30btn = document.getElementById('d30-close');
+
+  const target = new Date('2026-11-09T18:00:00+02:00').getTime();
+  const daysLeft = Math.floor((target - Date.now()) / 86400000);
+
+  if(daysLeft === 30){
+    // show special overlay once per day (localStorage guard)
+    const key = 'day30shown';
+    try {
+      if(!localStorage.getItem(key)){
+        localStorage.setItem(key, '1');
+        setTimeout(()=>{ d30.classList.add('open'); }, 800);
+      }
+    } catch(e){ setTimeout(()=>{ d30.classList.add('open'); }, 800); }
+    d30btn.addEventListener('click', ()=>{ d30.classList.remove('open'); });
+    msgEl.textContent = "חודש שלם של ציפייה — ואת שווה כל רגע!";
+  } else if(MSGS[daysLeft] !== undefined){
+    msgEl.textContent = MSGS[daysLeft];
+  }
+
+  if(msgEl.textContent){
+    setTimeout(()=>{ msgEl.classList.add('visible'); }, 600);
+  }
 })();
 
 /* ══════════════════════════════════════════
