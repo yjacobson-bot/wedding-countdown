@@ -498,8 +498,10 @@ let beatEnergy = 0; // 0-1, updated by audio engine
   }
 
   let t = 0;
+  window._canvasPaused = false;
   function draw(){
     const W=c.width, H=c.height;
+    if(window._canvasPaused){ requestAnimationFrame(draw); return; }
     ctx.clearRect(0,0,W,H);
     t += 0.011;
 
@@ -959,9 +961,11 @@ let beatEnergy = 0; // 0-1, updated by audio engine
     if(node.audio.paused){
       audioCtx.resume().then(()=>{ node.audio.play().catch(()=>{}); });
       if(node.gain){ node.gain.gain.setValueAtTime(0.85, audioCtx.currentTime); }
+      window._canvasPaused = false;
       window._musicSetPaused?.(false);
     } else {
       node.audio.pause();
+      window._canvasPaused = true;
       window._musicSetPaused?.(true);
     }
   };
