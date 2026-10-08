@@ -700,7 +700,28 @@
   <div class="d21-divider"></div>
 </div>
 
-<!-- days 15, 12, 8, 7, 0 simple overlays -->
+<!-- days 27, 25, 24, 15, 12, 10, 8, 7, 0 simple overlays -->
+<div id="day27-special" class="day-simple">
+  <button class="ds-close" id="d27-close">סגור</button>
+  <div class="ds-num">27</div>
+  <div class="ds-divider"></div>
+  <div class="ds-main">הלב דופק, והשעון איתו —<br>לקראת היום הגדול</div>
+  <div class="ds-divider"></div>
+</div>
+<div id="day25-special" class="day-simple">
+  <button class="ds-close" id="d25-close">סגור</button>
+  <div class="ds-num">25</div>
+  <div class="ds-divider"></div>
+  <div class="ds-main">מורידים הילוך,<br>מגבירים התרגשות</div>
+  <div class="ds-divider"></div>
+</div>
+<div id="day24-special" class="day-simple">
+  <button class="ds-close" id="d24-close">סגור</button>
+  <div class="ds-num">24</div>
+  <div class="ds-divider"></div>
+  <div class="ds-main">״עוד יִשָּׁמַע בְּעָרֵי יְהוּדָה<br>וּבְחוּצוֹת יְרוּשָׁלַיִם...״</div>
+  <div class="ds-divider"></div>
+</div>
 <div id="day15-special" class="day-simple">
   <button class="ds-close" id="d15-close">סגור</button>
   <div class="ds-num">15</div>
@@ -713,6 +734,13 @@
   <div class="ds-num">12</div>
   <div class="ds-divider"></div>
   <div class="ds-main">עוד קצת וזה קורה!</div>
+  <div class="ds-divider"></div>
+</div>
+<div id="day10-special" class="day-simple">
+  <button class="ds-close" id="d10-close">סגור</button>
+  <div class="ds-num">10</div>
+  <div class="ds-divider"></div>
+  <div class="ds-main">נכנסים לעשירייה הפותחת!</div>
   <div class="ds-divider"></div>
 </div>
 <div id="day8-special" class="day-simple">
@@ -991,8 +1019,12 @@ let songEnergy = 0; // 0-1, slow-moving average — reflects song tempo/mood
   const d31btn = document.getElementById('d31-close');
 
   const simpleOverlays = [
+    { day:27, id:'day27-special', btn:'d27-close', badge:'הלב דופק והשעון איתו' },
+    { day:25, id:'day25-special', btn:'d25-close', badge:'מורידים הילוך, מגבירים התרגשות' },
+    { day:24, id:'day24-special', btn:'d24-close', badge:'עוד ישמע בערי יהודה...' },
     { day:15, id:'day15-special', btn:'d15-close', badge:'כבר עברנו חצי דרך!' },
     { day:12, id:'day12-special', btn:'d12-close', badge:'עוד קצת וזה קורה!' },
+    { day:10, id:'day10-special', btn:'d10-close', badge:'נכנסים לעשירייה הפותחת!' },
     { day: 8, id:'day8-special',  btn:'d8-close',  badge:'יש מצב להריץ קדימה?' },
     { day: 7, id:'day7-special',  btn:'d7-close',  badge:'נשימה עמוקה — ישורת האחרונה' },
     { day: 0, id:'day0-special',  btn:'d0-close',  badge:'זֶה הַיּוֹם עָשָׂה ה׳ — נָגִילָה וְנִשְׂמְחָה בוֹ' },
