@@ -1712,7 +1712,7 @@ let songEnergy = 0; // 0-1, slow-moving average — reflects song tempo/mood
 
 /* ── version check via ETag ── */
 (function(){
-  let currentEtag = null;
+  const LS_KEY = 'wc-etag';
 
   function showUpdateToast(){
     const toast  = document.getElementById('update-toast');
@@ -1731,8 +1731,9 @@ let songEnergy = 0; // 0-1, slow-moving average — reflects song tempo/mood
       if(!r.ok) return;
       const etag = r.headers.get('etag') || r.headers.get('last-modified');
       if(!etag) return;
-      if(currentEtag === null){ currentEtag = etag; return; }
-      if(etag !== currentEtag){ currentEtag = etag; showUpdateToast(); }
+      const saved = localStorage.getItem(LS_KEY);
+      if(!saved){ localStorage.setItem(LS_KEY, etag); return; }
+      if(etag !== saved){ localStorage.setItem(LS_KEY, etag); showUpdateToast(); }
     } catch{}
   }
 
