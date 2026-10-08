@@ -197,6 +197,28 @@
     }
     #day-badge.visible { opacity: 1; }
 
+    /* ── update toast ── */
+    #update-toast {
+      position: fixed; bottom: calc(20px + env(safe-area-inset-bottom,0px)); left: 50%; transform: translateX(-50%) translateY(80px);
+      z-index: 300;
+      background: rgba(10,10,20,0.92); border: 1px solid rgba(201,168,76,0.45);
+      border-radius: 40px; padding: 10px 20px;
+      display: flex; align-items: center; gap: 12px;
+      color: var(--fg); font-size: 0.85rem; font-family: 'Heebo', sans-serif;
+      backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+      box-shadow: 0 4px 24px rgba(0,0,0,0.5);
+      transition: transform 0.4s cubic-bezier(.34,1.56,.64,1), opacity 0.4s;
+      opacity: 0; pointer-events: none;
+    }
+    #update-toast.show { transform: translateX(-50%) translateY(0); opacity: 1; pointer-events: auto; }
+    #update-reload {
+      background: rgba(201,168,76,0.18); border: 1px solid rgba(201,168,76,0.5);
+      color: var(--gold); border-radius: 20px; padding: 5px 14px;
+      font-size: 0.8rem; cursor: pointer; white-space: nowrap;
+      transition: background 0.2s;
+    }
+    #update-reload:hover { background: rgba(201,168,76,0.32); }
+
     /* ── corner buttons ── */
     .corner-btn {
       position: fixed; z-index: 50;
@@ -540,6 +562,12 @@
 <body>
 <canvas id="bg-canvas"></canvas>
 
+
+<!-- update toast -->
+<div id="update-toast">
+  <span>✨ עדכון זמין</span>
+  <button id="update-reload">רענן</button>
+</div>
 
 <!-- corner buttons (appear on hover/touch) -->
 <button id="btn-music"  class="corner-btn" aria-label="עצור/נגן מוזיקה">♪</button>
@@ -1624,6 +1652,26 @@ let songEnergy = 0; // 0-1, slow-moving average — reflects song tempo/mood
 
   setTimeout(fire, 1800); // first fire after entrance animation
 })();
+
+/* ── service worker + update toast ── */
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('/sw.js').then(reg => {
+    reg.addEventListener('updatefound', () => {
+      const sw = reg.installing;
+      sw.addEventListener('statechange', () => {
+        if(sw.state === 'installed' && navigator.serviceWorker.controller){
+          const toast  = document.getElementById('update-toast');
+          const reload = document.getElementById('update-reload');
+          toast.classList.add('show');
+          reload.addEventListener('click', () => {
+            sw.postMessage({ type: 'SKIP_WAITING' });
+            window.location.reload();
+          });
+        }
+      });
+    });
+  });
+}
 </script>
 </body>
 </html>
