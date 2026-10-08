@@ -1502,6 +1502,19 @@ let songEnergy = 0; // 0-1, slow-moving average — reflects song tempo/mood
   btnBride.addEventListener('click',     ()=>dismiss('bride'),  {once:true});
   btnBride.addEventListener('touchstart',()=>dismiss('bride'),  {once:true, passive:true});
 
+  // skip splash when reloading from update toast
+  try {
+    const lastSide = sessionStorage.getItem('wc-skip-splash');
+    if(lastSide){
+      sessionStorage.removeItem('wc-skip-splash');
+      const savedGroom = localStorage.getItem('wc_groom');
+      const savedBride = localStorage.getItem('wc_bride');
+      // pick last used side, fallback to groom
+      const who = savedBride && !savedGroom ? 'bride' : 'groom';
+      setTimeout(() => dismiss(who), 50);
+    }
+  } catch(e){}
+
   /* expose toggle for the corner button */
   window._musicToggle = function(){
     if(!audioCtx || !currentId) return;
@@ -1706,7 +1719,10 @@ let songEnergy = 0; // 0-1, slow-moving average — reflects song tempo/mood
     const reload = document.getElementById('update-reload');
     if(!toast || toast.classList.contains('show')) return;
     toast.classList.add('show');
-    reload.addEventListener('click', () => location.reload());
+    reload.addEventListener('click', () => {
+      try { sessionStorage.setItem('wc-skip-splash','1'); } catch(e){}
+      location.reload();
+    });
   }
 
   async function checkVersion(){
