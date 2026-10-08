@@ -1682,7 +1682,7 @@ let songEnergy = 0; // 0-1, slow-moving average — reflects song tempo/mood
 /* ── service worker + update toast ── */
 if('serviceWorker' in navigator){
   navigator.serviceWorker.register('/sw.js').then(reg => {
-    reg.addEventListener('updatefound', () => {
+    function onUpdateFound(){
       const sw = reg.installing;
       sw.addEventListener('statechange', () => {
         if(sw.state === 'installed' && navigator.serviceWorker.controller){
@@ -1695,7 +1695,10 @@ if('serviceWorker' in navigator){
           });
         }
       });
-    });
+    }
+    reg.addEventListener('updatefound', onUpdateFound);
+    // check for updates every 60 seconds
+    setInterval(() => reg.update(), 60000);
   });
 }
 </script>
