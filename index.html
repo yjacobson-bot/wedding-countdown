@@ -264,8 +264,8 @@
     .theme-dot.active { border-color: #e2c97e; box-shadow: 0 0 10px rgba(201,168,76,0.9); }
     .theme-dot.default-theme { position: relative; }
     .theme-dot.default-theme::after {
-      content: '★'; position: absolute; bottom: -14px; left: 50%; transform: translateX(-50%);
-      font-size: 9px; line-height: 1; color: #c9a84c;
+      content: 'ברירת מחדל'; position: absolute; right: calc(100% + 6px); top: 50%; transform: translateY(-50%);
+      font-size: 10px; white-space: nowrap; color: #c9a84c; font-family: 'Heebo', sans-serif; pointer-events: none;
     }
 
     /* ── invitation lightbox ── */
@@ -1697,10 +1697,9 @@ let songEnergy = 0; // 0-1, slow-moving average — reflects song tempo/mood
   document.addEventListener('fullscreenchange', update);
 })();
 
-/* ── version check via GitHub API ── */
+/* ── version check via ETag ── */
 (function(){
-  const GH_REPO = 'yjacobson-bot/wedding-countdown';
-  let currentSha = null;
+  let currentEtag = null;
 
   function showUpdateToast(){
     const toast  = document.getElementById('update-toast');
@@ -1712,26 +1711,19 @@ let songEnergy = 0; // 0-1, slow-moving average — reflects song tempo/mood
 
   async function checkVersion(){
     try {
-      const url = `https://api.github.com/repos/${GH_REPO}/commits/main?t=${Date.now()}`;
-      const r = await fetch(url, {
-        cache: 'no-store',
-        headers: { Accept: 'application/vnd.github.v3+json' }
-      });
+      const r = await fetch('/index.html?_=' + Date.now(), { method:'HEAD', cache:'no-store' });
       if(!r.ok) return;
-      const sha = (await r.json()).sha.slice(0,10);
-      if(!sha) return;
-      if(currentSha === null){ currentSha = sha; return; }
-      if(sha !== currentSha){ currentSha = sha; showUpdateToast(); }
+      const etag = r.headers.get('etag') || r.headers.get('last-modified');
+      if(!etag) return;
+      if(currentEtag === null){ currentEtag = etag; return; }
+      if(etag !== currentEtag){ currentEtag = etag; showUpdateToast(); }
     } catch{}
   }
 
   checkVersion();
   setInterval(checkVersion, 30000);
 
-  // keep SW for offline support only
-  if('serviceWorker' in navigator){
-    navigator.serviceWorker.register('/sw.js').catch(()=>{});
-  }
+  if('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(()=>{});
 })();
 </script>
 </body>
