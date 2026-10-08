@@ -214,8 +214,26 @@
     body:hover .corner-btn,
     .corner-btn:focus { opacity: 1; }
     .corner-btn:hover { background: rgba(201,168,76,0.25); color: #e2c97e; }
-    #btn-music { bottom: 20px; left: 20px; bottom: calc(20px + env(safe-area-inset-bottom,0px)); }
+    #btn-music  { bottom: 20px; left: 20px;  bottom: calc(20px + env(safe-area-inset-bottom,0px)); }
     #btn-invite { bottom: 20px; right: 20px; bottom: calc(20px + env(safe-area-inset-bottom,0px)); }
+    #btn-theme  { bottom: calc(64px + env(safe-area-inset-bottom,0px)); left: 20px; }
+
+    /* theme palette panel */
+    #theme-panel {
+      position: fixed; bottom: calc(110px + env(safe-area-inset-bottom,0px)); left: 16px;
+      display: flex; flex-direction: column; gap: 8px;
+      z-index: 150; opacity: 0; pointer-events: none;
+      transform: translateY(10px);
+      transition: opacity 0.25s, transform 0.25s;
+    }
+    #theme-panel.open { opacity: 1; pointer-events: auto; transform: translateY(0); }
+    .theme-dot {
+      width: 26px; height: 26px; border-radius: 50%;
+      border: 2px solid rgba(201,168,76,0.5);
+      cursor: pointer; transition: transform 0.15s, border-color 0.15s;
+    }
+    .theme-dot:hover  { transform: scale(1.2); border-color: var(--gold); }
+    .theme-dot.active { border-color: #e2c97e; box-shadow: 0 0 8px rgba(201,168,76,0.8); }
 
     /* ── invitation lightbox ── */
     #inv-overlay {
@@ -526,6 +544,17 @@
 <!-- corner buttons (appear on hover/touch) -->
 <button id="btn-music"  class="corner-btn" aria-label="עצור/נגן מוזיקה">♪</button>
 <button id="btn-invite" class="corner-btn" aria-label="הצג הזמנה">✉</button>
+<button id="btn-theme"  class="corner-btn" aria-label="שנה רקע">🎨</button>
+
+<!-- theme palette panel -->
+<div id="theme-panel">
+  <div class="theme-dot" data-bg="#080b16" data-name="לילה"    title="לילה"    style="background:#080b16"></div>
+  <div class="theme-dot" data-bg="#0d0820" data-name="סגול"    title="סגול"    style="background:#0d0820"></div>
+  <div class="theme-dot" data-bg="#06120d" data-name="יער"     title="יער"     style="background:#06120d"></div>
+  <div class="theme-dot" data-bg="#130608" data-name="בורדו"   title="בורדו"   style="background:#130608"></div>
+  <div class="theme-dot" data-bg="#000000" data-name="שחור"    title="שחור"    style="background:#000000"></div>
+  <div class="theme-dot" data-bg="#0a0e1a" data-name="שחר"     title="שחר"     style="background:#0a0e1a"></div>
+</div>
 
 <!-- invitation lightbox -->
 <div id="inv-overlay">
@@ -1514,6 +1543,49 @@ let songEnergy = 0; // 0-1, slow-moving average — reflects song tempo/mood
   btnClose.addEventListener('click', () => overlay.classList.remove('open'));
   overlay.addEventListener('click', e => { if(e.target === overlay) overlay.classList.remove('open'); });
   document.addEventListener('keydown', e => { if(e.key === 'Escape') overlay.classList.remove('open'); });
+})();
+
+/* ── background theme switcher ── */
+(function(){
+  const THEMES = [
+    { bg:'#080b16' },
+    { bg:'#0d0820' },
+    { bg:'#06120d' },
+    { bg:'#130608' },
+    { bg:'#000000' },
+    { bg:'#0a0e1a' },
+  ];
+  const panel  = document.getElementById('theme-panel');
+  const btnTh  = document.getElementById('btn-theme');
+  const dots   = document.querySelectorAll('.theme-dot');
+  const root   = document.documentElement;
+
+  function applyTheme(bg){
+    root.style.setProperty('--bg', bg);
+    document.body.style.background = bg;
+    dots.forEach(d => d.classList.toggle('active', d.dataset.bg === bg));
+    try { localStorage.setItem('wc-theme-bg', bg); } catch(e){}
+  }
+
+  // restore saved
+  try {
+    const saved = localStorage.getItem('wc-theme-bg');
+    if(saved) applyTheme(saved);
+    else dots[0].classList.add('active');
+  } catch(e){ dots[0].classList.add('active'); }
+
+  btnTh.addEventListener('click', e => {
+    e.stopPropagation();
+    panel.classList.toggle('open');
+  });
+  dots.forEach(d => {
+    d.addEventListener('click', e => {
+      e.stopPropagation();
+      applyTheme(d.dataset.bg);
+      panel.classList.remove('open');
+    });
+  });
+  document.addEventListener('click', () => panel.classList.remove('open'));
 })();
 
 /* ── shimmer beams on names ── */
