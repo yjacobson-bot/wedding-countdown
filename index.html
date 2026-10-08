@@ -1086,16 +1086,17 @@ let songEnergy = 0; // 0-1, slow-moving average — reflects song tempo/mood
   }
 
   function fire(){
-    const r = Math.random();
-    if(r < 0.45){
-      sweep(beamL, false);          // left → right
-    } else if(r < 0.8){
-      sweep(beamR, true);           // right → left
-    } else {
-      sweep(beamL, false);          // both simultaneously
-      setTimeout(() => sweep(beamR, true), 80);
+    if(!window._canvasPaused){
+      const r = Math.random();
+      if(r < 0.45){
+        sweep(beamL, false);
+      } else if(r < 0.8){
+        sweep(beamR, true);
+      } else {
+        sweep(beamL, false);
+        setTimeout(() => sweep(beamR, true), 80);
+      }
     }
-    // next fire: 3.5–5.5 seconds
     setTimeout(fire, 3500 + Math.random() * 2000);
   }
 
