@@ -1145,6 +1145,69 @@ let songEnergy = 0; // 0-1, slow-moving average — reflects song tempo/mood
 })();
 
 /* ══════════════════════════════════════════
+   HEARTBEAT — plays before music starts
+══════════════════════════════════════════ */
+(function(){
+  let hbCtx = null, hbTimer = null, hbGain = null, hbRunning = false;
+
+  function beat(ctx, gain, t){
+    // lub
+    const o1 = ctx.createOscillator();
+    const g1 = ctx.createGain();
+    o1.type = 'sine'; o1.frequency.value = 60;
+    g1.gain.setValueAtTime(0, t);
+    g1.gain.linearRampToValueAtTime(0.22, t + 0.02);
+    g1.gain.exponentialRampToValueAtTime(0.001, t + 0.14);
+    o1.connect(g1); g1.connect(gain);
+    o1.start(t); o1.stop(t + 0.15);
+    // dub
+    const o2 = ctx.createOscillator();
+    const g2 = ctx.createGain();
+    o2.type = 'sine'; o2.frequency.value = 52;
+    g2.gain.setValueAtTime(0, t + 0.18);
+    g2.gain.linearRampToValueAtTime(0.16, t + 0.20);
+    g2.gain.exponentialRampToValueAtTime(0.001, t + 0.32);
+    o2.connect(g2); g2.connect(gain);
+    o2.start(t + 0.18); o2.stop(t + 0.33);
+  }
+
+  function scheduleBeat(){
+    if(!hbRunning || !hbCtx) return;
+    const t = hbCtx.currentTime;
+    beat(hbCtx, hbGain, t);
+    hbTimer = setTimeout(scheduleBeat, 900);
+  }
+
+  function startHeartbeat(){
+    if(hbRunning) return;
+    hbCtx  = new (window.AudioContext || window.webkitAudioContext)();
+    hbGain = hbCtx.createGain();
+    hbGain.gain.value = 1;
+    hbGain.connect(hbCtx.destination);
+    hbRunning = true;
+    scheduleBeat();
+  }
+
+  function stopHeartbeat(){
+    if(!hbRunning) return;
+    hbRunning = false;
+    clearTimeout(hbTimer);
+    if(hbGain) hbGain.gain.setTargetAtTime(0, hbCtx.currentTime, 0.3);
+    setTimeout(()=>{ try{ hbCtx.close(); }catch(e){} hbCtx = null; }, 1000);
+  }
+
+  // start on first user interaction, before music
+  window._stopHeartbeat = stopHeartbeat;
+  function onFirstTouch(){
+    document.removeEventListener('click', onFirstTouch);
+    document.removeEventListener('touchstart', onFirstTouch);
+    startHeartbeat();
+  }
+  document.addEventListener('click', onFirstTouch);
+  document.addEventListener('touchstart', onFirstTouch);
+})();
+
+/* ══════════════════════════════════════════
    AUDIO ENGINE — Web Audio API + crossfade
 ══════════════════════════════════════════ */
 (function(){
@@ -1395,6 +1458,7 @@ let songEnergy = 0; // 0-1, slow-moving average — reflects song tempo/mood
       const ORIG = { 'main-groom': 'שימי', 'main-bride': 'תמר' };
       [groomEl, brideEl].forEach(el => { if(el) el.textContent = ORIG[el.id] || el.textContent.replace(/\s/g,''); });
       animateMainNames();
+      window._stopHeartbeat?.();
       startPlaylist(who==='groom' ? GROOM_IDS : BRIDE_IDS, who);
     }, 380);
   }
