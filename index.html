@@ -261,6 +261,11 @@
     }
     .theme-dot:hover  { transform: scale(1.18); border-color: #c9a84c; }
     .theme-dot.active { border-color: #e2c97e; box-shadow: 0 0 10px rgba(201,168,76,0.9); }
+    .theme-dot.default-theme { position: relative; }
+    .theme-dot.default-theme::after {
+      content: ''; position: absolute; bottom: -5px; left: 50%; transform: translateX(-50%);
+      width: 4px; height: 4px; border-radius: 50%; background: #c9a84c;
+    }
 
     /* ── invitation lightbox ── */
     #inv-overlay {
@@ -582,7 +587,7 @@
 <!-- theme palette panel -->
 <div id="theme-panel">
   <!-- כהים -->
-  <div class="theme-dot" data-bg="#080b16" data-fg="light" title="לילה"  style="background:#080b16"></div>
+  <div class="theme-dot default-theme" data-bg="#080b16" data-fg="light" title="לילה (ברירת מחדל)" style="background:#080b16"></div>
   <div class="theme-dot" data-bg="#1a0a2e" data-fg="light" title="סגול"  style="background:#1a0a2e"></div>
   <div class="theme-dot" data-bg="#0a1f0e" data-fg="light" title="יער"   style="background:#0a1f0e"></div>
   <div class="theme-dot" data-bg="#1f0808" data-fg="light" title="בורדו" style="background:#1f0808"></div>
@@ -590,10 +595,9 @@
   <!-- מפריד -->
   <div style="height:1px;background:rgba(201,168,76,0.25);margin:2px 4px"></div>
   <!-- בהירים -->
-  <div class="theme-dot" data-bg="#f5f0e8" data-fg="dark"  title="שנהב"  style="background:#f5f0e8"></div>
-  <div class="theme-dot" data-bg="#e8e4f0" data-fg="dark"  title="לבנדר" style="background:#e8e4f0"></div>
-  <div class="theme-dot" data-bg="#e8f0ec" data-fg="dark"  title="מנטה"  style="background:#e8f0ec"></div>
-  <div class="theme-dot" data-bg="#f0e8e8" data-fg="dark"  title="ורוד"  style="background:#f0e8e8"></div>
+  <div class="theme-dot" data-bg="#f5f0e8" data-fg="dark"  title="שנהב"   style="background:#f5f0e8"></div>
+  <div class="theme-dot" data-bg="#ddf0f8" data-fg="dark"  title="תכלכל"  style="background:#ddf0f8"></div>
+  <div class="theme-dot" data-bg="#f5dde5" data-fg="dark"  title="וורדרד" style="background:#f5dde5"></div>
 </div>
 
 <!-- invitation lightbox -->
