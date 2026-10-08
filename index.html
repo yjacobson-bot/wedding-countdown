@@ -243,19 +243,20 @@
     /* theme palette panel */
     #theme-panel {
       position: fixed; bottom: calc(110px + env(safe-area-inset-bottom,0px)); left: 16px;
-      display: flex; flex-direction: column; gap: 8px;
+      display: flex; flex-direction: column; gap: 7px;
       z-index: 150; opacity: 0; pointer-events: none;
       transform: translateY(10px);
       transition: opacity 0.25s, transform 0.25s;
     }
     #theme-panel.open { opacity: 1; pointer-events: auto; transform: translateY(0); }
     .theme-dot {
-      width: 26px; height: 26px; border-radius: 50%;
-      border: 2px solid rgba(201,168,76,0.5);
-      cursor: pointer; transition: transform 0.15s, border-color 0.15s;
+      width: 28px; height: 28px; border-radius: 50%;
+      border: 2.5px solid rgba(150,130,80,0.45);
+      cursor: pointer; transition: transform 0.15s, border-color 0.15s, box-shadow 0.15s;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.08);
     }
-    .theme-dot:hover  { transform: scale(1.2); border-color: var(--gold); }
-    .theme-dot.active { border-color: #e2c97e; box-shadow: 0 0 8px rgba(201,168,76,0.8); }
+    .theme-dot:hover  { transform: scale(1.18); border-color: #c9a84c; }
+    .theme-dot.active { border-color: #e2c97e; box-shadow: 0 0 10px rgba(201,168,76,0.9); }
 
     /* ── invitation lightbox ── */
     #inv-overlay {
@@ -576,12 +577,19 @@
 
 <!-- theme palette panel -->
 <div id="theme-panel">
-  <div class="theme-dot" data-bg="#080b16" data-name="לילה"    title="לילה"    style="background:#080b16"></div>
-  <div class="theme-dot" data-bg="#0d0820" data-name="סגול"    title="סגול"    style="background:#0d0820"></div>
-  <div class="theme-dot" data-bg="#06120d" data-name="יער"     title="יער"     style="background:#06120d"></div>
-  <div class="theme-dot" data-bg="#130608" data-name="בורדו"   title="בורדו"   style="background:#130608"></div>
-  <div class="theme-dot" data-bg="#000000" data-name="שחור"    title="שחור"    style="background:#000000"></div>
-  <div class="theme-dot" data-bg="#0a0e1a" data-name="שחר"     title="שחר"     style="background:#0a0e1a"></div>
+  <!-- כהים -->
+  <div class="theme-dot" data-bg="#080b16" data-fg="light" title="לילה"  style="background:#080b16"></div>
+  <div class="theme-dot" data-bg="#1a0a2e" data-fg="light" title="סגול"  style="background:#1a0a2e"></div>
+  <div class="theme-dot" data-bg="#0a1f0e" data-fg="light" title="יער"   style="background:#0a1f0e"></div>
+  <div class="theme-dot" data-bg="#1f0808" data-fg="light" title="בורדו" style="background:#1f0808"></div>
+  <div class="theme-dot" data-bg="#000000" data-fg="light" title="שחור"  style="background:#000000"></div>
+  <!-- מפריד -->
+  <div style="height:1px;background:rgba(201,168,76,0.25);margin:2px 4px"></div>
+  <!-- בהירים -->
+  <div class="theme-dot" data-bg="#f5f0e8" data-fg="dark"  title="שנהב"  style="background:#f5f0e8"></div>
+  <div class="theme-dot" data-bg="#e8e4f0" data-fg="dark"  title="לבנדר" style="background:#e8e4f0"></div>
+  <div class="theme-dot" data-bg="#e8f0ec" data-fg="dark"  title="מנטה"  style="background:#e8f0ec"></div>
+  <div class="theme-dot" data-bg="#f0e8e8" data-fg="dark"  title="ורוד"  style="background:#f0e8e8"></div>
 </div>
 
 <!-- invitation lightbox -->
@@ -1575,30 +1583,45 @@ let songEnergy = 0; // 0-1, slow-moving average — reflects song tempo/mood
 
 /* ── background theme switcher ── */
 (function(){
-  const THEMES = [
-    { bg:'#080b16' },
-    { bg:'#0d0820' },
-    { bg:'#06120d' },
-    { bg:'#130608' },
-    { bg:'#000000' },
-    { bg:'#0a0e1a' },
-  ];
-  const panel  = document.getElementById('theme-panel');
-  const btnTh  = document.getElementById('btn-theme');
-  const dots   = document.querySelectorAll('.theme-dot');
-  const root   = document.documentElement;
+  const panel = document.getElementById('theme-panel');
+  const btnTh = document.getElementById('btn-theme');
+  const dots  = document.querySelectorAll('.theme-dot');
+  const root  = document.documentElement;
 
-  function applyTheme(bg){
+  const LIGHT = {
+    '--fg':    '#2a1f0a',
+    '--muted': '#6b5a3a',
+    '--gold':  '#8a5e0a',
+    '--golds': '#a07010',
+    '--goldd': '#f0e0b0',
+    '--div':   'rgba(100,70,20,0.25)',
+    'color-scheme': 'light',
+  };
+  const DARK = {
+    '--fg':    '#ede4cc',
+    '--muted': '#a09278',
+    '--gold':  '#c9a84c',
+    '--golds': '#e2c97e',
+    '--goldd': '#5e4820',
+    '--div':   'rgba(201,168,76,0.3)',
+    'color-scheme': 'dark',
+  };
+
+  function applyTheme(bg, fg){
+    const vars = fg === 'dark' ? LIGHT : DARK;
     root.style.setProperty('--bg', bg);
     document.body.style.background = bg;
+    Object.entries(vars).forEach(([k,v]) => {
+      if(k === 'color-scheme') root.style.colorScheme = v;
+      else root.style.setProperty(k, v);
+    });
     dots.forEach(d => d.classList.toggle('active', d.dataset.bg === bg));
-    try { localStorage.setItem('wc-theme-bg', bg); } catch(e){}
+    try { localStorage.setItem('wc-theme', JSON.stringify({bg,fg})); } catch(e){}
   }
 
-  // restore saved
   try {
-    const saved = localStorage.getItem('wc-theme-bg');
-    if(saved) applyTheme(saved);
+    const saved = JSON.parse(localStorage.getItem('wc-theme') || 'null');
+    if(saved) applyTheme(saved.bg, saved.fg);
     else dots[0].classList.add('active');
   } catch(e){ dots[0].classList.add('active'); }
 
@@ -1609,7 +1632,7 @@ let songEnergy = 0; // 0-1, slow-moving average — reflects song tempo/mood
   dots.forEach(d => {
     d.addEventListener('click', e => {
       e.stopPropagation();
-      applyTheme(d.dataset.bg);
+      applyTheme(d.dataset.bg, d.dataset.fg);
       panel.classList.remove('open');
     });
   });
