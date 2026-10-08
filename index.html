@@ -1591,27 +1591,27 @@ let songEnergy = 0; // 0-1, slow-moving average — reflects song tempo/mood
   const dots  = document.querySelectorAll('.theme-dot');
   const root  = document.documentElement;
 
-  const LIGHT = {
-    '--fg':    '#0d0800',
-    '--muted': '#3a2a10',
-    '--gold':  '#6b4400',
-    '--golds': '#7a5000',
-    '--goldd': '#e8d090',
-    '--div':   'rgba(80,50,0,0.3)',
-    'color-scheme': 'light',
+  const VARS_DARK = {
+    '--fg':    '#ede4cc', '--muted': '#a09278',
+    '--gold':  '#c9a84c', '--golds': '#e2c97e', '--goldd': '#5e4820',
+    '--div':   'rgba(201,168,76,0.3)', 'color-scheme': 'dark',
   };
-  const DARK = {
-    '--fg':    '#ede4cc',
-    '--muted': '#a09278',
-    '--gold':  '#c9a84c',
-    '--golds': '#e2c97e',
-    '--goldd': '#5e4820',
-    '--div':   'rgba(201,168,76,0.3)',
-    'color-scheme': 'dark',
+  const VARS_LIGHT = {
+    '--fg':    '#111111', '--muted': '#444444',
+    '--gold':  '#7a5a00', '--golds': '#9a7200', '--goldd': '#e8d090',
+    '--div':   'rgba(100,75,0,0.3)', 'color-scheme': 'light',
   };
 
+  function luminance(hex){
+    const r=parseInt(hex.slice(1,3),16)/255;
+    const g=parseInt(hex.slice(3,5),16)/255;
+    const b=parseInt(hex.slice(5,7),16)/255;
+    return 0.2126*r + 0.7152*g + 0.0722*b;
+  }
+
   function applyTheme(bg, fg){
-    const vars = fg === 'dark' ? LIGHT : DARK;
+    const isLight = fg ? fg==='dark' : luminance(bg) > 0.3;
+    const vars = isLight ? VARS_LIGHT : VARS_DARK;
     root.style.setProperty('--bg', bg);
     document.body.style.background = bg;
     Object.entries(vars).forEach(([k,v]) => {
@@ -1619,7 +1619,7 @@ let songEnergy = 0; // 0-1, slow-moving average — reflects song tempo/mood
       else root.style.setProperty(k, v);
     });
     dots.forEach(d => d.classList.toggle('active', d.dataset.bg === bg));
-    try { localStorage.setItem('wc-theme', JSON.stringify({bg,fg})); } catch(e){}
+    try { localStorage.setItem('wc-theme', JSON.stringify({bg,fg: isLight?'dark':'light'})); } catch(e){}
   }
 
   try {
