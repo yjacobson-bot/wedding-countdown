@@ -400,6 +400,54 @@
       50%      { text-shadow: 0 0 160px rgba(201,168,76,0.8), 0 0 70px rgba(201,168,76,0.5); }
     }
 
+    /* ── shared simple overlay ── */
+    .day-simple {
+      display: none;
+      position: fixed; inset: 0; z-index: 100;
+      background: rgba(8,11,22,0.96);
+      align-items: center; justify-content: center;
+      flex-direction: column; gap: 2.5vh;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+    .day-simple.open { display: flex; }
+    .ds-num {
+      font-family: 'Cormorant Garamond', serif; font-weight: 300;
+      font-size: min(22vw, 28vh);
+      color: var(--golds);
+      text-shadow: 0 0 100px rgba(201,168,76,0.5), 0 0 40px rgba(201,168,76,0.3);
+      line-height: 0.9;
+      animation: dspulse 3s ease-in-out infinite;
+    }
+    .ds-divider {
+      width: min(260px, 45vw); height: 1px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    }
+    .ds-main {
+      font-family: 'Cormorant Garamond', serif; font-weight: 300; font-style: italic;
+      font-size: clamp(1.3rem, 4vw, 2.8rem);
+      color: var(--fg);
+      letter-spacing: 0.1em;
+      text-align: center;
+      max-width: min(560px, 86vw);
+      animation: dsfadein 1.4s ease both;
+    }
+    .ds-close {
+      position: absolute; top: 20px; left: 20px;
+      background: rgba(201,168,76,0.1); border: 1px solid rgba(201,168,76,0.28);
+      color: var(--gold); font-size: 14px; padding: 6px 16px; border-radius: 20px;
+      cursor: pointer; font-family: 'Heebo', sans-serif;
+    }
+    .ds-close:hover { background: rgba(201,168,76,0.2); }
+    @keyframes dspulse {
+      0%,100% { text-shadow: 0 0 100px rgba(201,168,76,0.5), 0 0 40px rgba(201,168,76,0.3); }
+      50%      { text-shadow: 0 0 160px rgba(201,168,76,0.8), 0 0 70px rgba(201,168,76,0.5); }
+    }
+    @keyframes dsfadein {
+      from { opacity: 0; transform: translateY(14px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
     /* ── day-21 special ── */
     #day21-special {
       display: none;
@@ -650,6 +698,43 @@
   <div class="d21-divider"></div>
   <div class="d21-main">עוד <em>21</em> — בבית אחד</div>
   <div class="d21-divider"></div>
+</div>
+
+<!-- days 15, 12, 8, 7, 0 simple overlays -->
+<div id="day15-special" class="day-simple">
+  <button class="ds-close" id="d15-close">סגור</button>
+  <div class="ds-num">15</div>
+  <div class="ds-divider"></div>
+  <div class="ds-main">כבר עברנו חצי דרך!</div>
+  <div class="ds-divider"></div>
+</div>
+<div id="day12-special" class="day-simple">
+  <button class="ds-close" id="d12-close">סגור</button>
+  <div class="ds-num">12</div>
+  <div class="ds-divider"></div>
+  <div class="ds-main">עוד קצת וזה קורה!</div>
+  <div class="ds-divider"></div>
+</div>
+<div id="day8-special" class="day-simple">
+  <button class="ds-close" id="d8-close">סגור</button>
+  <div class="ds-num">8</div>
+  <div class="ds-divider"></div>
+  <div class="ds-main">יש מצב להריץ קדימה?</div>
+  <div class="ds-divider"></div>
+</div>
+<div id="day7-special" class="day-simple">
+  <button class="ds-close" id="d7-close">סגור</button>
+  <div class="ds-num">7</div>
+  <div class="ds-divider"></div>
+  <div class="ds-main">נשימה עמוקה,<br>אנחנו בישורת האחרונה</div>
+  <div class="ds-divider"></div>
+</div>
+<div id="day0-special" class="day-simple">
+  <button class="ds-close" id="d0-close">סגור</button>
+  <div class="ds-num">🕯️</div>
+  <div class="ds-divider"></div>
+  <div class="ds-main">זֶה הַיּוֹם עָשָׂה ה׳ — נָגִילָה וְנִשְׂמְחָה בוֹ</div>
+  <div class="ds-divider"></div>
 </div>
 
 <!-- day-30 special overlay -->
@@ -904,6 +989,14 @@ let songEnergy = 0; // 0-1, slow-moving average — reflects song tempo/mood
   const d29btn = document.getElementById('d29-close');
   const d31    = document.getElementById('day31-special');
   const d31btn = document.getElementById('d31-close');
+
+  const simpleOverlays = [
+    { day:15, id:'day15-special', btn:'d15-close', badge:'כבר עברנו חצי דרך!' },
+    { day:12, id:'day12-special', btn:'d12-close', badge:'עוד קצת וזה קורה!' },
+    { day: 8, id:'day8-special',  btn:'d8-close',  badge:'יש מצב להריץ קדימה?' },
+    { day: 7, id:'day7-special',  btn:'d7-close',  badge:'נשימה עמוקה — ישורת האחרונה' },
+    { day: 0, id:'day0-special',  btn:'d0-close',  badge:'זֶה הַיּוֹם עָשָׂה ה׳ — נָגִילָה וְנִשְׂמְחָה בוֹ' },
+  ];
   const d21    = document.getElementById('day21-special');
   const d21btn = document.getElementById('d21-close');
 
@@ -934,6 +1027,15 @@ let songEnergy = 0; // 0-1, slow-moving average — reflects song tempo/mood
     showBadge('עוד 21 — בבית אחד');
     setTimeout(()=>{ d21.classList.add('open'); }, 800);
     d21btn.addEventListener('click', ()=>{ d21.classList.remove('open'); });
+  } else {
+    const match = simpleOverlays.find(o => o.day === daysLeft);
+    if(match){
+      showBadge(match.badge);
+      const el  = document.getElementById(match.id);
+      const btn = document.getElementById(match.btn);
+      setTimeout(()=>{ el.classList.add('open'); }, 800);
+      btn.addEventListener('click', ()=>{ el.classList.remove('open'); });
+    }
   }
 })();
 
