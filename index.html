@@ -532,8 +532,16 @@
   <img src="invitation.png" alt="הזמנה לחתונה" />
 </div>
 
-<audio id="ag1" src="music.mp3"       preload="none" crossorigin="anonymous"></audio>
-<audio id="ab1" src="music_bride.mp3" preload="none" crossorigin="anonymous"></audio>
+<audio id="ag1" src="music.mp3"        preload="none" crossorigin="anonymous"></audio>
+<audio id="ag2" src="music2.mp3"       preload="none" crossorigin="anonymous"></audio>
+<audio id="ag3" src="music3.mp3"       preload="none" crossorigin="anonymous"></audio>
+<audio id="ag4" src="music4.mp3"       preload="none" crossorigin="anonymous"></audio>
+<audio id="ag5" src="music5.mp3"       preload="none" crossorigin="anonymous"></audio>
+<audio id="ab1" src="music_bride.mp3"  preload="none" crossorigin="anonymous"></audio>
+<audio id="ab2" src="music2_bride.mp3" preload="none" crossorigin="anonymous"></audio>
+<audio id="ab3" src="music3_bride.mp3" preload="none" crossorigin="anonymous"></audio>
+<audio id="ab4" src="music4_bride.mp3" preload="none" crossorigin="anonymous"></audio>
+<audio id="ab5" src="music5_bride.mp3" preload="none" crossorigin="anonymous"></audio>
 
 <!-- splash -->
 <div id="splash" style="
@@ -1140,8 +1148,8 @@ let songEnergy = 0; // 0-1, slow-moving average — reflects song tempo/mood
    AUDIO ENGINE — Web Audio API + crossfade
 ══════════════════════════════════════════ */
 (function(){
-  const GROOM_IDS = ['ag1'];
-  const BRIDE_IDS = ['ab1'];
+  const GROOM_IDS = ['ag1','ag2','ag3','ag4','ag5'];
+  const BRIDE_IDS = ['ab1','ab2','ab3','ab4','ab5'];
   const FADE_DUR  = 3.0; // seconds crossfade
 
   let audioCtx, analyser, freqData;
