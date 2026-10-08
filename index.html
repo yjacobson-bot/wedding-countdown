@@ -1712,10 +1712,11 @@ let songEnergy = 0; // 0-1, slow-moving average — reflects song tempo/mood
 
   async function checkVersion(){
     try {
-      const r = await fetch(
-        `https://api.github.com/repos/${GH_REPO}/commits/main`,
-        { cache:'no-store', headers:{ Accept:'application/vnd.github.v3+json' } }
-      );
+      const url = `https://api.github.com/repos/${GH_REPO}/commits/main?t=${Date.now()}`;
+      const r = await fetch(url, {
+        cache: 'no-store',
+        headers: { Accept: 'application/vnd.github.v3+json' }
+      });
       if(!r.ok) return;
       const sha = (await r.json()).sha.slice(0,10);
       if(!sha) return;
@@ -1725,7 +1726,7 @@ let songEnergy = 0; // 0-1, slow-moving average — reflects song tempo/mood
   }
 
   checkVersion();
-  setInterval(checkVersion, 60000);
+  setInterval(checkVersion, 30000);
 
   // keep SW for offline support only
   if('serviceWorker' in navigator){
