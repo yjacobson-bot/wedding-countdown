@@ -1205,7 +1205,7 @@ let songEnergy = 0; // 0-1, slow-moving average — reflects song tempo/mood
       if(match.day === 1){
         const hoursLeft = Math.floor((target - Date.now()) / 3600000);
         const numEl = el.querySelector('.ds-num');
-        if(numEl) numEl.textContent = hoursLeft + ' שע׳';
+        if(numEl) numEl.textContent = hoursLeft + ' שעות';
       }
       setTimeout(()=>{ el.classList.add('open'); }, 800);
       btn.addEventListener('click', ()=>{ el.classList.remove('open'); });
