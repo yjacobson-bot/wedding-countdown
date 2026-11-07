@@ -709,7 +709,7 @@
     <div class="days-block">
       <p class="notaru">נותרו</p>
       <span class="days-val" id="days">--</span>
-      <span class="days-lbl">ימים</span>
+      <span class="days-lbl" id="days-lbl">ימים</span>
     </div>
 
     <span class="orn-side flip" id="orn-right">
@@ -729,11 +729,11 @@
   <div class="bottom">
     <div class="thin-div"></div>
     <div class="hms" id="hms">
-      <div class="hms-u">
+      <div class="hms-u" id="hms-hours-unit">
         <span class="hms-v" id="hours">--</span>
         <span class="hms-l">שעות</span>
       </div>
-      <span class="colon">:</span>
+      <span class="colon" id="hms-colon1">:</span>
       <div class="hms-u">
         <span class="hms-v" id="minutes">--</span>
         <span class="hms-l">דקות</span>
@@ -1066,26 +1066,44 @@ let songEnergy = 0; // 0-1, slow-moving average — reflects song tempo/mood
    COUNTDOWN
 ══════════════════════════════════════════ */
 (function(){
-  const target = new Date('2026-11-09T18:00:00+02:00').getTime();
-  const dE=document.getElementById('days'),
-        hE=document.getElementById('hours'),
-        mE=document.getElementById('minutes'),
-        sE=document.getElementById('seconds'),
-        doneEl=document.getElementById('done');
+  const target    = new Date('2026-11-09T18:00:00+02:00').getTime();
+  const dE        = document.getElementById('days'),
+        hE        = document.getElementById('hours'),
+        mE        = document.getElementById('minutes'),
+        sE        = document.getElementById('seconds'),
+        doneEl    = document.getElementById('done'),
+        daysLbl   = document.getElementById('days-lbl'),
+        hrsUnit   = document.getElementById('hms-hours-unit'),
+        colon1    = document.getElementById('hms-colon1');
+  const daysBlock = document.querySelector('.days-block');
+  const thinDiv   = document.querySelector('.thin-div');
+  const hmsEl     = document.getElementById('hms');
   function pad(n){ return String(Math.floor(n)).padStart(2,'0'); }
+  let hoursMode = false;
   function tick(){
     const diff = target-Date.now();
     if(diff<=0){
-      document.querySelector('.days-block').style.display='none';
-      document.querySelector('.thin-div').style.display='none';
-      document.getElementById('hms').style.display='none';
+      daysBlock.style.display='none';
+      thinDiv.style.display='none';
+      hmsEl.style.display='none';
       doneEl.style.display='block'; return;
     }
-    const s=diff/1000;
-    dE.textContent=Math.floor(s/86400);
-    hE.textContent=pad((s%86400)/3600);
-    mE.textContent=pad((s%3600)/60);
-    sE.textContent=pad(s%60);
+    const s = diff/1000;
+    if(diff < 48*3600*1000){
+      // שעות מצב — פחות מ-48 שעות
+      if(!hoursMode){
+        hoursMode = true;
+        daysLbl.textContent = 'שעות';
+        hrsUnit.style.display = 'none';
+        colon1.style.display  = 'none';
+      }
+      dE.textContent = Math.floor(s/3600);
+    } else {
+      dE.textContent = Math.floor(s/86400);
+      hE.textContent = pad((s%86400)/3600);
+    }
+    mE.textContent = pad((s%3600)/60);
+    sE.textContent = pad(s%60);
     setTimeout(tick, 1000-(Date.now()%1000));
   }
   tick();
