@@ -1095,7 +1095,9 @@ let songEnergy = 0; // 0-1, slow-moving average — reflects song tempo/mood
       daysBlock.style.display='none';
       thinDiv.style.display='none';
       hmsEl.style.display='none';
-      doneEl.style.display='block'; return;
+      doneEl.style.display='block';
+      if(window._stopAllMusic) window._stopAllMusic();
+      return;
     }
     const s = diff/1000;
     if(diff < 48*3600*1000){
@@ -1395,6 +1397,23 @@ let songEnergy = 0; // 0-1, slow-moving average — reflects song tempo/mood
     try { localStorage.setItem('wc_'+who, JSON.stringify({id:currentId, t:audio.currentTime})); } catch(e){}
   }
   function loadPos(who){ try { return JSON.parse(localStorage.getItem('wc_'+who)||'null'); } catch(e){ return null; } }
+
+  function stopAllMusic(){
+    activeIds = null;
+    if(saveInterval){ clearInterval(saveInterval); saveInterval = null; }
+    Object.values(nodes).forEach(node => {
+      if(!node) return;
+      if(node.gain){
+        const now = audioCtx?.currentTime || 0;
+        node.gain.gain.cancelScheduledValues(now);
+        node.gain.gain.setValueAtTime(node.gain.gain.value, now);
+        node.gain.gain.linearRampToValueAtTime(0, now + 2.5);
+      }
+      setTimeout(() => { try { node.audio.pause(); } catch(e){} }, 2600);
+    });
+    currentId = null;
+  }
+  window._stopAllMusic = stopAllMusic;
 
   let saveInterval = null;
 
