@@ -988,7 +988,7 @@ let songEnergy = 0; // 0-1, slow-moving average — reflects song tempo/mood
   window._canvasPaused = false;
   function draw(){
     const W=c.width, H=c.height;
-    if(window._canvasPaused){ requestAnimationFrame(draw); return; }
+    if(window._canvasPaused){ if(!window._allStopped) requestAnimationFrame(draw); else ctx.clearRect(0,0,W,H); return; }
     ctx.clearRect(0,0,W,H);
     t += 0.011;
 
@@ -1097,6 +1097,12 @@ let songEnergy = 0; // 0-1, slow-moving average — reflects song tempo/mood
       hmsEl.style.display='none';
       doneEl.style.display='block';
       if(window._stopAllMusic) window._stopAllMusic();
+      // freeze everything
+      window._allStopped = true;
+      window._canvasPaused = true;
+      document.querySelectorAll('*').forEach(el => {
+        el.style.animationPlayState = 'paused';
+      });
       return;
     }
     const s = diff/1000;
@@ -1214,6 +1220,7 @@ let songEnergy = 0; // 0-1, slow-moving average — reflects song tempo/mood
   let pulseT     = 0; // independent time counter for letter wave
 
   function pulse(){
+    if(window._allStopped) return;
     prevSmooth = smoothBeat;
     smoothBeat += (beatEnergy - smoothBeat) * 0.28;
     const rising = smoothBeat - prevSmooth;
