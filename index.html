@@ -1157,6 +1157,10 @@ let songEnergy = 0; // 0-1, slow-moving average — reflects song tempo/mood
 
   const target = new Date('2026-11-09T18:00:00+02:00').getTime();
   const daysLeft = Math.floor((target - Date.now()) / 86400000);
+  // יום 0 לפי יום לוח שנה — לא לפי 24 שעות
+  const _now = new Date();
+  const isWeddingDay = _now.getFullYear()===2026 && _now.getMonth()===10 && _now.getDate()===9;
+  const effectiveDaysLeft = isWeddingDay ? 0 : daysLeft;
 
   const badge = document.getElementById('day-badge');
 
@@ -1183,7 +1187,7 @@ let songEnergy = 0; // 0-1, slow-moving average — reflects song tempo/mood
     setTimeout(()=>{ d21.classList.add('open'); }, 800);
     d21btn.addEventListener('click', ()=>{ d21.classList.remove('open'); });
   } else {
-    const match = simpleOverlays.find(o => o.day === daysLeft);
+    const match = simpleOverlays.find(o => o.day === effectiveDaysLeft);
     if(match){
       showBadge(match.badge);
       const el  = document.getElementById(match.id);
