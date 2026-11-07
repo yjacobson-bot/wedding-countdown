@@ -1201,6 +1201,12 @@ let songEnergy = 0; // 0-1, slow-moving average — reflects song tempo/mood
       showBadge(match.badge);
       const el  = document.getElementById(match.id);
       const btn = document.getElementById(match.btn);
+      // ביום האחרון — הצג שעות במקום מספר הימים
+      if(match.day === 1){
+        const hoursLeft = Math.floor((target - Date.now()) / 3600000);
+        const numEl = el.querySelector('.ds-num');
+        if(numEl) numEl.textContent = hoursLeft + ' שע׳';
+      }
       setTimeout(()=>{ el.classList.add('open'); }, 800);
       btn.addEventListener('click', ()=>{ el.classList.remove('open'); });
     }
