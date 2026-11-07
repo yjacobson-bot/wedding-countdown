@@ -146,7 +146,16 @@
       line-height: 0.9; font-variant-numeric: tabular-nums; color: var(--fg);
       text-shadow: 0 0 120px rgba(201,168,76,0.25);
       display: inline-block;
-      transition: transform 0.05s;
+      transition: transform 0.05s, color 1.2s ease, font-size 1.2s ease;
+    }
+    .days-val.hours-mode {
+      color: var(--gold);
+      font-size: min(22vw, 27vh);
+      animation: hours-pulse 2.2s ease-in-out infinite;
+    }
+    @keyframes hours-pulse {
+      0%,100% { text-shadow: 0 0 30px rgba(201,168,76,0.3), 0 0 80px rgba(201,168,76,0.1); }
+      50%      { text-shadow: 0 0 60px rgba(201,168,76,0.9), 0 0 140px rgba(201,168,76,0.45), 0 0 220px rgba(201,168,76,0.2); }
     }
     .days-lbl {
       font-size: clamp(0.6rem, 1.4vw, 0.85rem);
@@ -1096,6 +1105,7 @@ let songEnergy = 0; // 0-1, slow-moving average — reflects song tempo/mood
         daysLbl.textContent = 'שעות';
         hrsUnit.style.display = 'none';
         colon1.style.display  = 'none';
+        dE.classList.add('hours-mode');
       }
       dE.textContent = Math.floor(s/3600);
     } else {
