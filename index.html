@@ -1405,7 +1405,7 @@ let songEnergy = 0; // 0-1, slow-moving average — reflects song tempo/mood
     if(saved && ids.includes(saved.id) && saved.t > 5){
       crossfadeTo(saved.id, saved.t);
     } else {
-      crossfadeTo(pickRandom(ids, null));
+      crossfadeTo(ids[0]); // תמיד מהראשון כשאין מיקום שמור
     }
     // save position every 5s — clear previous interval first
     if(saveInterval) clearInterval(saveInterval);
