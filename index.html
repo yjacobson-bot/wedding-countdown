@@ -1384,7 +1384,7 @@ let songEnergy = 0; // 0-1, slow-moving average — reflects song tempo/mood
     if(!audio || !audio.currentTime) return;
     try { localStorage.setItem('wc_'+who, JSON.stringify({id:currentId, t:audio.currentTime})); } catch(e){}
   }
-  const MUSIC_RESET = '20261107a'; // bump this string to force a one-time reset for all users
+  const MUSIC_RESET = '20261107b'; // bump this string to force a one-time reset for all users
   function loadPos(who){
     try {
       if(localStorage.getItem('wc_reset') !== MUSIC_RESET){
