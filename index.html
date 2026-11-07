@@ -1384,18 +1384,7 @@ let songEnergy = 0; // 0-1, slow-moving average — reflects song tempo/mood
     if(!audio || !audio.currentTime) return;
     try { localStorage.setItem('wc_'+who, JSON.stringify({id:currentId, t:audio.currentTime})); } catch(e){}
   }
-  const MUSIC_RESET = '20261107b'; // bump this string to force a one-time reset for all users
-  function loadPos(who){
-    try {
-      if(localStorage.getItem('wc_reset') !== MUSIC_RESET){
-        localStorage.removeItem('wc_groom');
-        localStorage.removeItem('wc_bride');
-        localStorage.setItem('wc_reset', MUSIC_RESET);
-        return null;
-      }
-      return JSON.parse(localStorage.getItem('wc_'+who)||'null');
-    } catch(e){ return null; }
-  }
+  function loadPos(who){ try { return JSON.parse(localStorage.getItem('wc_'+who)||'null'); } catch(e){ return null; } }
 
   let saveInterval = null;
 
@@ -1405,7 +1394,7 @@ let songEnergy = 0; // 0-1, slow-moving average — reflects song tempo/mood
     if(saved && ids.includes(saved.id) && saved.t > 5){
       crossfadeTo(saved.id, saved.t);
     } else {
-      crossfadeTo(ids[0]); // תמיד מהראשון כשאין מיקום שמור
+      crossfadeTo(pickRandom(ids, null));
     }
     // save position every 5s — clear previous interval first
     if(saveInterval) clearInterval(saveInterval);
