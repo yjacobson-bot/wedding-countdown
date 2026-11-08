@@ -1250,7 +1250,7 @@ let songEnergy = 0; // 0-1, slow-moving average — reflects song tempo/mood
 
   function start(){
     const diff = target - Date.now();
-    if(diff <= 0 || diff > 29 * 3600000) return;
+    if(diff <= 0 || diff > 30 * 3600000) return;
     // הסתר את ה-badge הסטטי — הטקסט ממשיך כאן
     const badge = document.getElementById('day-badge');
     if(badge){ badge.classList.remove('visible'); setTimeout(()=>{ badge.style.display='none'; }, 1500); }
@@ -1260,11 +1260,10 @@ let songEnergy = 0; // 0-1, slow-moving average — reflects song tempo/mood
   }
 
   const diff = target - Date.now();
-  if(diff > 0 && diff <= 29 * 3600000){
+  if(diff > 0 && diff <= 30 * 3600000){
     start();
   } else {
-    // המתן עד שנכנסים לחלון ה-29 שעות
-    const wait = diff - 29 * 3600000;
+    const wait = diff - 30 * 3600000;
     if(wait > 0) setTimeout(start, wait);
   }
 })();
