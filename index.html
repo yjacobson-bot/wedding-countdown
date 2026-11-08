@@ -211,6 +211,19 @@
     #day-badge.visible { opacity: 1; }
     #day-badge { white-space: pre-line; }
 
+    /* ── hourly song-of-songs quote ── */
+    #hourly-quote {
+      display: none;
+      font-family: 'Cormorant Garamond', serif; font-style: italic; font-weight: 300;
+      font-size: clamp(1.1rem, 3vw, 1.75rem);
+      color: var(--golds); letter-spacing: 0.08em;
+      text-align: center; opacity: 0;
+      transition: opacity 1.6s ease;
+      text-shadow: 0 0 40px rgba(201,168,76,0.3);
+      max-width: min(80vw, 520px);
+    }
+    #hourly-quote.visible { opacity: 1; }
+
     /* ── update toast ── */
     #update-toast {
       position: fixed; bottom: calc(20px + env(safe-area-inset-bottom,0px)); left: 50%; transform: translateX(-50%) translateY(80px);
@@ -758,6 +771,7 @@
   </div>
 
   <div id="day-badge"></div>
+  <div id="hourly-quote"></div>
   <p class="footer">בשעה טובה ומוצלחת</p>
 </main>
 
@@ -1211,6 +1225,53 @@ let songEnergy = 0; // 0-1, slow-moving average — reflects song tempo/mood
       btn.addEventListener('click', ()=>{ el.classList.remove('open'); });
     }
   }
+})();
+
+/* ══════════════════════════════════════════
+   HOURLY SONG-OF-SONGS QUOTE
+══════════════════════════════════════════ */
+(function(){
+  const QUOTES = [
+    'אֲנִי לְדוֹדִי וְדוֹדִי לִי',
+    'קוֹל דּוֹדִי דּוֹפֵק',
+    'דּוֹדִי לִי וַאֲנִי לוֹ',
+    'שִׂימֵנִי כַחוֹתָם עַל לִבֶּךָ',
+    'מַה יָּפִית וּמַה נָּעַמְתְּ',
+    'הִנְּךָ יָפָה רַעְיָתִי',
+    'כְּשׁוֹשַׁנָּה בֵּין הַחוֹחִים',
+    'קוּמִי לָךְ רַעְיָתִי וּלְכִי לָךְ',
+    'הִנֵּה זֶה בָּא מְדַלֵּג עַל הֶהָרִים',
+    'עֵינַיִךְ יוֹנִים',
+    'פִּיהוּ מַמְתַּקִּים וְכֻלּוֹ מַחֲמַדִּים',
+    'אַהֲבָה עַזָּה כַמָּוֶת',
+    'מַיִם רַבִּים לֹא יוּכְלוּ לְכַבּוֹת אֶת הָאַהֲבָה',
+    'נַפְשִׁי בִּקַּשְׁתִּיו וְלֹא מְצָאתִיו — מְצָאתִיו',
+    'הֲשְׁבַּעְתִּי אֶתְכֶם בְּנוֹת יְרוּשָׁלָיִם',
+    'אֲנִי חוֹלַת אַהֲבָה',
+    'זֶה דּוֹדִי וְזֶה רֵעִי',
+    'כַּמַּיִם הַפָּנִים אֶל פָּנִים',
+  ];
+
+  const target = new Date('2026-11-09T18:00:00+02:00').getTime();
+  const el = document.getElementById('hourly-quote');
+
+  function update(){
+    const diff = target - Date.now();
+    if(diff <= 0 || diff > 48 * 3600000) return;
+    const hoursLeft = Math.floor(diff / 3600000);
+    const idx = (QUOTES.length - 1 - hoursLeft % QUOTES.length + QUOTES.length) % QUOTES.length;
+    el.style.display = 'block';
+    el.classList.remove('visible');
+    setTimeout(() => {
+      el.textContent = QUOTES[idx];
+      el.classList.add('visible');
+    }, 200);
+  }
+
+  update();
+  // רענן כל שעה (בשעה עגולה)
+  const msToNextHour = 3600000 - (Date.now() % 3600000);
+  setTimeout(() => { update(); setInterval(update, 3600000); }, msToNextHour);
 })();
 
 /* ══════════════════════════════════════════
