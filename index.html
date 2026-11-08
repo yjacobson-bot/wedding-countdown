@@ -1228,50 +1228,45 @@ let songEnergy = 0; // 0-1, slow-moving average — reflects song tempo/mood
 })();
 
 /* ══════════════════════════════════════════
-   HOURLY SONG-OF-SONGS QUOTE
+   ALTERNATING QUOTES (last 28 hours)
 ══════════════════════════════════════════ */
 (function(){
-  const QUOTES = [
-    'אֲנִי לְדוֹדִי וְדוֹדִי לִי',
-    'קוֹל דּוֹדִי דּוֹפֵק',
-    'דּוֹדִי לִי וַאֲנִי לוֹ',
-    'שִׂימֵנִי כַחוֹתָם עַל לִבֶּךָ',
-    'מַה יָּפִית וּמַה נָּעַמְתְּ',
-    'הִנְּךָ יָפָה רַעְיָתִי',
-    'כְּשׁוֹשַׁנָּה בֵּין הַחוֹחִים',
-    'קוּמִי לָךְ רַעְיָתִי וּלְכִי לָךְ',
-    'הִנֵּה זֶה בָּא מְדַלֵּג עַל הֶהָרִים',
-    'עֵינַיִךְ יוֹנִים',
-    'פִּיהוּ מַמְתַּקִּים וְכֻלּוֹ מַחֲמַדִּים',
-    'אַהֲבָה עַזָּה כַמָּוֶת',
-    'מַיִם רַבִּים לֹא יוּכְלוּ לְכַבּוֹת אֶת הָאַהֲבָה',
-    'נַפְשִׁי בִּקַּשְׁתִּיו וְלֹא מְצָאתִיו — מְצָאתִיו',
-    'הֲשְׁבַּעְתִּי אֶתְכֶם בְּנוֹת יְרוּשָׁלָיִם',
-    'אֲנִי חוֹלַת אַהֲבָה',
-    'זֶה דּוֹדִי וְזֶה רֵעִי',
-    'כַּמַּיִם הַפָּנִים אֶל פָּנִים',
+  const TEXTS = [
+    'קוֹל דּוֹדִי דּוֹפֵק...',
+    'מאורגנים? לא ממש.\nמתרגשים? לגמרי.',
   ];
-
   const target = new Date('2026-11-09T18:00:00+02:00').getTime();
   const el = document.getElementById('hourly-quote');
+  let idx = 0, timer = null;
 
-  function update(){
-    const diff = target - Date.now();
-    if(diff <= 0 || diff > 48 * 3600000) return;
-    const hoursLeft = Math.floor(diff / 3600000);
-    const idx = (QUOTES.length - 1 - hoursLeft % QUOTES.length + QUOTES.length) % QUOTES.length;
-    el.style.display = 'block';
+  function showNext(){
     el.classList.remove('visible');
     setTimeout(() => {
-      el.textContent = QUOTES[idx];
+      el.textContent = TEXTS[idx % TEXTS.length];
       el.classList.add('visible');
-    }, 200);
+      idx++;
+    }, 700);
   }
 
-  update();
-  // רענן כל שעה (בשעה עגולה)
-  const msToNextHour = 3600000 - (Date.now() % 3600000);
-  setTimeout(() => { update(); setInterval(update, 3600000); }, msToNextHour);
+  function start(){
+    const diff = target - Date.now();
+    if(diff <= 0 || diff > 28 * 3600000) return;
+    // הסתר את ה-badge הסטטי — הטקסט ממשיך כאן
+    const badge = document.getElementById('day-badge');
+    if(badge){ badge.classList.remove('visible'); setTimeout(()=>{ badge.style.display='none'; }, 1500); }
+    el.style.display = 'block';
+    showNext();
+    timer = setInterval(showNext, 5000);
+  }
+
+  const diff = target - Date.now();
+  if(diff > 0 && diff <= 28 * 3600000){
+    start();
+  } else {
+    // המתן עד שנכנסים לחלון ה-28 שעות
+    const wait = diff - 28 * 3600000;
+    if(wait > 0) setTimeout(start, wait);
+  }
 })();
 
 /* ══════════════════════════════════════════
